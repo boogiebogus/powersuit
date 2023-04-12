@@ -1,0 +1,60 @@
+UAC Light Powersuit, "Mongoose"
+
+================================
+INFO
+================================
+
+Contrary to the name, and to both the disappointment and glee of infantry, the Mongoose is not a suit
+of power armor, but rather more like a pocket-sized mech. With a modular gun mount on each arm,
+the Mongoose brings enough firepower to easily plow through all of the demons commonly encountered
+by infantry units. Along with using the same armor plates found in battle armor, and using
+systems that can be easily replaced, the Mongoose is incredibly versatile and easy to maintain.
+However, it is still a mech, and as a result is not nearly as agile as being on-foot.
+
+================================
+SPAWNING
+================================
+
+The Mongoose has a chance to replace megaspheres. They will spawn a beacon along with two weapons
+- one of them is always a 4mm LMG, but the other one is random. Activate the beacon in your
+inventory in order to teleport in a Mongoose.
+
+================================
+IMPORTANT CONTROLS
+================================
+
+Press use on the powersuit to get in.
+Press crouch + use while inside the powersuit to get out.
+Press crouch + use on the powersuit, while outside, to open up the maintenance menu. Alternatively,
+if someone is inside the powersuit already, this will eject them.
+Press use item while selecting a powersuit weapon in order to be able to reload / unload it
+without attaching it to the powersuit.
+
+Holding use will bring up controls for everything else. This applies for both the control
+interface and the maintenance screen. Note that on the maintenance screen, the controls will
+change depending on context, so make sure to check the controls on every option!
+
+================================
+MECHANICS
+================================
+
+The powersuit uses tank controls - left and right will turn the legs left and right, rather than
+strafing. The torso can rotate independently, however--basically, it's like mechwarrior.
+
+Left click will fire the left arm, while right click will fire the right arm. The places they're
+aiming is represented by the cyan reticle and purple reticle, respectively. They'll try to
+converge on where you're looking. There's no way to tell whether reticle is in front of or behind
+of an object, so be aware of that.
+
+When struck by fire, such as from an imp, the powersuit will gain heat. If it gets hot enough, 
+you'll start taking damage. While not inside the powersuit, you can tell if it's still beyond 
+this threshold if it is smoking. The powersuit, unfortunately, does not protect very well against 
+mancubus/combat slug flamethrowers.
+
+The powersuit has a battery life of 30 minutes, with 15 minutes for each battery. The shields
+only have a battery life of 10 minutes while idle, and drain significantly faster when recharging.
+
+Should there be a place you simply can't get the powersuit through, you can disassemble the suit
+and transport each of the parts to the destination. In order to place the suit, simply use the
+torso inventory item. Note that the limbs can only be dropped from the item manager (press
+the mag manager button twice in a row).
