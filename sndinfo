@@ -1,0 +1,29 @@
+mech/stomp 			sounds/stomp.wav
+mech/legwhir 		sounds/legwhir.wav
+mech/thruster 		sounds/thruster.mp3
+mech/horn 			sounds/horn.wav
+mech/powerout 		sounds/powerout.mp3
+mech/getin 			sounds/getin.wav
+mech/powerup 		sounds/powerup.wav
+mech/powerdown 		sounds/powerdown.wav
+mech/destroyed 		sounds/suitbreak.ogg
+mech/beaconbeep		sounds/Alert_1.wav
+
+weapons/leonidas/fire		dsrifle
+$limit weapons/leonidas/fire 0
+
+weapons/calinicus/ignite	dsrlaunc
+weapons/calinicus/boom		dsdshtgn
+weapons/calinicus/grenade	dsgresht
+
+weapons/zmg33/fire			dsbrifle
+
+weapons/athena/fire			dsdshtgn
+weapons/athena/fire2		dsbrifle
+weapons/athena/bolt			dsrifclk
+
+weapons/jackripper/smg		dspistol
+$volume weapons/jackripper/smg 0.7
+$limit weapons/jackripper/smg 0
+weapons/jackripper/shotgun	dsshotg
+$limit weapons/jackripper/shotgun 0
