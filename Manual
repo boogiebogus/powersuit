@@ -25,10 +25,9 @@ IMPORTANT CONTROLS
 
 Press use on the powersuit to get in.
 Press crouch + use while inside the powersuit to get out.
-Press crouch + use on the powersuit, while outside, to open up the maintenance menu. Alternatively,
-if someone is inside the powersuit already, this will eject them.
-Press use item while selecting a powersuit weapon in order to be able to reload / unload it
-without attaching it to the powersuit.
+Press crouch + use on the powersuit, while outside, to open up the maintenance menu.
+Press use item on a powersuit weapon to be able to reload / unload it without attaching 
+it to the powersuit.
 
 Holding use will bring up controls for everything else. This applies for both the control
 interface and the maintenance screen. Note that on the maintenance screen, the controls will
