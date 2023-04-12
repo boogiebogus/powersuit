@@ -390,7 +390,7 @@ class HDPowersuitArm : hdactor
 		statusmessage = "\cjWeapon: \cd"..gettag()..(ismagazine ? (
 			"\n\cjLoaded magazines: \cd"..mags.size() + ((realcurrentmag > 0) ? 1 : 0).."/"..(maxmags + 1)..
 			"\n\cjCurrent magazine: \cd"..((realcurrentmag > 0) ? (realcurrentmag.." rounds") : "\cgnone")) : "")..
-			"\n\cjTotal rounds: \cd"..((totalrounds > 0) ? totalrounds.."/"..(maxmags + 1).." rounds" : "\cgnone")..
+			"\n\cjTotal rounds: \cd"..((totalrounds > 0) ? totalrounds.."/"..(ismagazine ? ((maxmags + 1) * magsize) : (maxmags + 1)).." rounds" : "\cgnone")..
 			"\n\cf"..magstring..((magstring.mid(magstring.length() - 1, 1) == 's') ? " " : "s ")..
 			"\cjin inventory: \cd";
 				
