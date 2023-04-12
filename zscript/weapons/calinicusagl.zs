@@ -8,7 +8,7 @@ class HDPowersuitRocketArm : HDPowersuitArm
 	{
 		scale 0.7;
 		
-		hdpowersuitarm.maxmags 1100;
+		hdpowersuitarm.maxmags 11;
 		hdpowersuitarm.magsize 1;
 		hdpowersuitarm.ammotype "hdrocketammo";
 		hdpowersuitarm.reloadtime 30;
@@ -125,15 +125,6 @@ class HDPowersuitRocketArm : HDPowersuitArm
 				{
 					frame = 4;
 				}
-				/*
-				if (firerockets)
-				{
-					a_settics(16);
-				}
-				else
-				{
-					a_settics(12);
-				}*/
 				
 				if (firerockets)
 				{
@@ -141,7 +132,7 @@ class HDPowersuitRocketArm : HDPowersuitArm
 				}
 				else
 				{
-					a_settics(2);
+					a_settics(12);
 				}
 			}
 			CLNC B 0
