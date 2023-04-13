@@ -312,11 +312,14 @@ class HDPowersuit : hdactor
 		}
 		else
 		{
-			suitshield.bquicktoretaliate = false;
-			
-			if (suitshield.amount > 0)
+			if (suitshield)
 			{
-				suitshield.amount -= 2;
+				suitshield.bquicktoretaliate = false;
+
+				if (suitshield.amount > 0)
+				{
+					suitshield.amount -= 2;
+				}
 			}
 		}
 		
