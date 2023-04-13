@@ -70,6 +70,7 @@ class HDPowersuit : hdactor
 		mass 500;
 		radius 18;
 		height 54;
+		health 100;
 		
 		hdpowersuit.maxviewrotation 120;
 		hdpowersuit.maxtorsorotation 100;
@@ -367,6 +368,13 @@ class HDPowersuit : hdactor
 		{
 			a_startsound("mech/destroyed", 0, CHANF_OVERLAP);
 			integrity = -1;
+			bKILLED = true;
+			health = -1;
+		}
+		else if (integrity > 0 && bKILLED)
+		{
+			health = 100;
+			bKILLED = false;
 		}
 		
 		lastvel = vel;
