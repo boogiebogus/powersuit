@@ -60,10 +60,12 @@ class HDPowersuit : hdactor
 		+slidesonwalls
 		+invulnerable
 		+noblood
-		+invisible
+		//+invisible
 		+dropoff
 		+blockasplayer
 		+canpass
+		+friendly
+		+ismonster
 		species "hdpowersuit";
 		mass 500;
 		radius 18;
@@ -243,6 +245,8 @@ class HDPowersuit : hdactor
 				driver.invsel = null;
 				hdplayerpawn(driver).incaptimer = 0;
 			}
+			
+			A_AlertMonsters(0, AMF_TARGETEMITTER);
 		}
 		else if (pos.z <= floorz || bonmobj)
 		{
