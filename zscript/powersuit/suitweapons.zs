@@ -387,9 +387,9 @@ class HDPowersuitArm : hdactor
 		
 		string magstring = getdefaultbytype(magtype).gettag();
 		
-		statusmessage = "\cjWeapon: \cd"..gettag()..(ismagazine ? (
+		statusmessage = "\cjWeapon: \cd"..gettag()..(ismagazine ? ( //if it's a mag
 			"\n\cjLoaded magazines: \cd"..mags.size() + ((realcurrentmag > 0) ? 1 : 0).."/"..(maxmags + 1)..
-			"\n\cjCurrent magazine: \cd"..((realcurrentmag > 0) ? (realcurrentmag.." rounds") : "\cgnone")) : "")..
+			"\n\cjCurrent magazine: \cd"..((realcurrentmag > 0) ? (realcurrentmag.." rounds") : "\cgnone")) : "").. //end of if it's a mag
 			"\n\cjTotal rounds: \cd"..((totalrounds > 0) ? totalrounds.."/"..(ismagazine ? ((maxmags + 1) * magsize) : (maxmags + 1)).." rounds" : "\cgnone")..
 			"\n\cf"..magstring..((magstring.mid(magstring.length() - 1, 1) == 's') ? " " : "s ")..
 			"\cjin inventory: \cd";
