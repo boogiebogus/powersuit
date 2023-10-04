@@ -1,8 +1,7 @@
-UAC Light Powersuit, "Mongoose"
+# UAC "Mongoose" Light Powersuit
+> A mod for [Hideous Destructor](https://codeberg.org/mc776/HideousDestructor/) that adds a mini mech-suit.
 
-================================
-INFO
-================================
+## INFO
 
 Contrary to the name, and to both the disappointment and glee of infantry, the Mongoose is not a suit
 of power armor, but rather more like a pocket-sized mech. With a modular gun mount on each arm,
@@ -11,31 +10,25 @@ by infantry units. Along with using the same armor plates found in battle armor,
 systems that can be easily replaced, the Mongoose is incredibly versatile and easy to maintain.
 However, it is still a mech, and as a result is not nearly as agile as being on-foot.
 
-================================
-SPAWNING
-================================
+## SPAWNING
 
-The Mongoose has a chance to replace megaspheres. They will spawn a beacon along with two weapons
-- one of them is always a 4mm LMG, but the other one is random. Activate the beacon in your
+The Mongoose has a chance to replace megaspheres. They will spawn a beacon along with two weapons.
+- One of them is always a 4mm LMG, but the other one is random. Activate the beacon in your
 inventory in order to teleport in a Mongoose.
 
-================================
-IMPORTANT CONTROLS
-================================
+## IMPORTANT CONTROLS
 
-Press use on the powersuit to get in.
-Press crouch + use while inside the powersuit to get out.
-Press crouch + use on the powersuit, while outside, to open up the maintenance menu.
-Press use item on a powersuit weapon to be able to reload / unload it without attaching 
+Press `Use` on the powersuit to get in.
+Press `Crouch` + `Use` while inside the powersuit to get out.
+Press `Crouch` + `Use` on the powersuit, while outside, to open up the maintenance menu.
+Press `Use Item` on a powersuit weapon to be able to reload/unload it without attaching 
 it to the powersuit.
 
 Holding use will bring up controls for everything else. This applies for both the control
 interface and the maintenance screen. Note that on the maintenance screen, the controls will
 change depending on context, so make sure to check the controls on every option!
 
-================================
-MECHANICS
-================================
+## MECHANICS
 
 The powersuit uses tank controls - left and right will turn the legs left and right, rather than
 strafing. The torso can rotate independently, however--basically, it's like mechwarrior.

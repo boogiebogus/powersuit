@@ -41,7 +41,7 @@ class HDPowersuitBrontoArm : hdpowersuitarm
 		
 		if (hpl.player.cmd.buttons & BT_ZOOM)
 		{
-			sb.drawimage((isleft ? "atencam1" : "atencam2"), ((isleft ? -128 : 128), 40), sb.DI_SCREEN_CENTER | sb.DI_ITEM_HCENTER | sb.DI_ITEM_TOP,
+			sb.drawimage((isleft ? "atencam1" : "atencam2"), ((isleft ? -128 : 128), 37), sb.DI_SCREEN_CENTER | sb.DI_ITEM_HCENTER | sb.DI_ITEM_TOP,
 				scale: (0.46, 0.46));
 				
 			sb.drawimage("libscope", ((isleft ? -128 : 128), 28), sb.DI_SCREEN_CENTER | sb.DI_ITEM_HCENTER | sb.DI_ITEM_TOP,

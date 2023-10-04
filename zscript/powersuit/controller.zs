@@ -9,6 +9,8 @@ class HDPowersuitInterface : nullweapon
 	{
 		weapon.slotnumber 1;
 		+inventory.undroppable;
+		tag "Mongoose Powersuit";
+		obituary "%o fell for %k's war crimes.";
 	}
 	
 	override string gethelptext()
