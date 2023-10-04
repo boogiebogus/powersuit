@@ -83,28 +83,16 @@ class HDPowersuitRocketArm : HDPowersuitArm
 				{
 					a_startsound("weapons/calinicus/ignite", CHAN_WEAPON, CHANF_OVERLAP);
 					a_startsound("weapons/calinicus/boom", CHAN_WEAPON, CHANF_OVERLAP);
-
+				}
+				else a_startsound("weapons/calinicus/grenade", CHAN_WEAPON, CHANF_OVERLAP);
 					let firedrocket = rocketgrenade(spawn("rocketgrenade", pos));
 					firedrocket.angle = angle;
 					firedrocket.pitch = pitch;
-					firedrocket.target = self;
-					firedrocket.master = self;
+					if(suitcore.driver)firedrocket.target = suitcore.driver;
+					else firedrocket.target = self;
 					
 					firedrocket.primed = false;
-					firedrocket.isrocket = true;
-
-				}
-				else
-				{
-					a_startsound("weapons/calinicus/grenade", CHAN_WEAPON, CHANF_OVERLAP);
-				
-					let firedgrenade = rocketgrenade(spawn("rocketgrenade", pos + (cos(angle) * 4, sin(angle) * 4, 8)));
-					firedgrenade.angle = angle;
-					firedgrenade.pitch = pitch;
-					firedgrenade.target = self;
-					firedgrenade.master = self;
-					firedgrenade.primed = false;
-				}
+					if(firerockets)firedrocket.isrocket = true;
 				
 				if (suitcore.driver)
 				{
