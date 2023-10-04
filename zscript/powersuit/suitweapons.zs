@@ -36,6 +36,7 @@ class HDPowersuitArm : hdactor
 		species "hdpowersuit";
 		hdpowersuitarm.magtype "";
 		hdpowersuitarm.altammotype "";
+		obituary "%o fell for war crimes."; //gross hack
 	}
 	
 	virtual void fillmags()
