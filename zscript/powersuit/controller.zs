@@ -191,6 +191,10 @@ class HDPowersuitInterface : nullweapon
 				sb.drawstring(sb.psmallfont, "\cgINTEGRITY FAILURE",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
 			}
+			else if (suitcore.overheated && ((suitcore.batteries[0] + suitcore.batteries[1]) > 0)){
+				sb.drawstring(sb.psmallfont, "\cgEMERGENCY SHUTDOWN. OVERHEATED",
+					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
+			}
 			else
 			{
 				sb.drawstring(sb.psmallfont, "\cgNO BATTERY",
