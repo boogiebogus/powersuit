@@ -107,7 +107,8 @@ class HDPowersuitBrontoArm : hdpowersuitarm
 					frame = 5;
 				}
 				
-				hdbulletactor.firebullet(self, "hdb_bronto", zofs: 8, speedfactor: 2.0);
+				if(suitcore.driver)hdbulletactor.firebullet(suitcore.driver, "hdb_bronto", zofs: 8, speedfactor: 2.0);
+				else hdbulletactor.firebullet(self, "hdb_bronto", zofs: 8, speedfactor: 2.0);
 				
 				a_startsound("weapons/athena/fire", CHAN_WEAPON);
 				a_startsound("weapons/athena/fire", CHAN_WEAPON, CHANF_OVERLAP);
@@ -119,7 +120,7 @@ class HDPowersuitBrontoArm : hdpowersuitarm
 				[didspawn, casing] = a_spawnitemex("terrorcasing", 0, 0, 8, frandom(-2, -3), 
 					(isleft ? frandom(-3, -5) : frandom(3, 5)), 3, 0, SXF_NOCHECKPOSITION | SXF_TRANSFERPITCH);
 					
-				casing.translation = suitcore.driver.translation;
+				if(suitcore.driver)casing.translation = suitcore.driver.translation;
 				
 				for (int i = 0; i < 15; i++)
 				{
