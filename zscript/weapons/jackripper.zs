@@ -399,7 +399,8 @@ class HDPowersuitSMGArm : HDPowersuitArm
 					frame = 5;
 				}
 				
-				hdbulletactor.firebullet(self, "HDB_9", zofs: 8, spread: 1, speedfactor: 1.2);
+				if(suitcore.driver)hdbulletactor.firebullet(suitcore.driver, "HDB_9", zofs: 8, spread: 1, speedfactor: 1.2);
+				else hdbulletactor.firebullet(self, "HDB_9", zofs: 8, spread: 1, speedfactor: 1.2);
 				a_startsound("weapons/jackripper/smg", CHAN_WEAPON);
 				if (suitcore.driver)
 				{
@@ -443,10 +444,16 @@ class HDPowersuitSMGArm : HDPowersuitArm
 				
 				double spread = 6.5 - 0.5 * 3;
 				double speedfactor = 1.0 + 0.02857 * 3;
-				
+
+				if(suitcore.driver){
+				hdbulletactor.firebullet(suitcore.driver, "HDB_wad", zofs: 8);
+				hdbulletactor.firebullet(suitcore.driver, "HDB_00", zofs: 8, spread: spread, 
+					speedfactor: speedfactor, amount: 10);
+				}else{
 				hdbulletactor.firebullet(self, "HDB_wad", zofs: 8);
 				hdbulletactor.firebullet(self, "HDB_00", zofs: 8, spread: spread, 
 					speedfactor: speedfactor, amount: 10);
+				}
 				a_startsound("weapons/jackripper/shotgun", CHAN_WEAPON);
 				if (suitcore.driver)
 				{
