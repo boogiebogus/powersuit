@@ -296,15 +296,12 @@ class HDPowersuitLibArm : HDPowersuitArm
 				
 				if (hd7mmag.checkrecast(currentmag, currecasts))
 				{
-
-					if(suitcore.driver)hdbulletactor.firebullet(suitcore.driver, "HDB_776r", zofs: 8, spread: spread / 3);
-					else hdbulletactor.firebullet(self, "HDB_776r", zofs: 8, spread: spread / 3);
+					hdbulletactor.firebullet(self, "HDB_776r", zofs: 8, spread: spread / 3);
 					currecasts--;
 				}
 				else
 				{
-					if(suitcore.driver)hdbulletactor.firebullet(suitcore.driver, "HDB_776", zofs: 8, spread: spread / 3);
-					else hdbulletactor.firebullet(self, "HDB_776", zofs: 8, spread: spread / 3);
+					hdbulletactor.firebullet(self, "HDB_776", zofs: 8, spread: spread / 3);
 				}
 				
 				A_StartSound("weapons/zmg33/fire", CHAN_WEAPON, CHANF_OVERLAP);
