@@ -344,7 +344,8 @@ class HDPowersuitVulcArm : HDPowersuitArm
 				//the 3 is INTENTIONALLY an integer
 				if (curmagsealed || random(0, (fullerauto ? 3 : 7)))
 				{
-					hdbulletactor.firebullet(self, "HDB_426", zofs: 8, spread: (spread / 3));
+					if(suitcore.driver)hdbulletactor.firebullet(suitcore.driver, "HDB_426", zofs: 8, spread: (spread / 3));
+					else hdbulletactor.firebullet(self, "HDB_426", zofs: 8, spread: (spread / 3));
 					a_startsound("weapons/leonidas/fire", CHAN_WEAPON, CHANF_OVERLAP);
 					if (suitcore.driver)
 					{
