@@ -1,7 +1,7 @@
 #include "zscript/weapons/blankarm.zs"
 #include "zscript/weapons/leonidaslmg.zs"
 #include "zscript/weapons/calinicusagl.zs"
-#include "zscript/weapons/jackripper.zs" //UNFINISHED!!! (needs sprites)
+#include "zscript/weapons/jackripper.zs"
 #include "zscript/weapons/zmg33.zs"
 #include "zscript/weapons/athena.zs"
 

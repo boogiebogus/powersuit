@@ -23,7 +23,7 @@ class HDPowersuitInterface : nullweapon
 			WEPHELP_BTCOL.."Sprint"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Stomp\n"..
 			WEPHELP_BTCOL.."Crouch"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Get out\n"..
 			WEPHELP_BTCOL.."Jump"..WEPHELP_RGCOL.."  Jump jets\n"..
-			WEPHELP_ALTRELOAD.."  Align legs to torso";
+			WEPHELP_FIREMODE.. " + "..WEPHELP_RELOAD.."  Override emergency shutdown (If overheated)";
 	}
 	
 	override void doeffect()
@@ -137,6 +137,15 @@ class HDPowersuitInterface : nullweapon
 			//warnings
 			int warningoffset = 8;
 			
+			//override
+			if (suitcore.shutdownoverride)
+			{
+				sb.drawstring(sb.psmallfont, "! Shutdown override active !", (0, warningoffset), 
+					sb.DI_SCREEN_TOP | sb.DI_SCREEN_HCENTER | sb.DI_TEXT_ALIGN_CENTER, font.CR_RED);
+				
+				warningoffset += 8;
+			}
+			
 			//battery warning
 			if ((suitcore.batteries[0] * suitcore.partialchargemax) +
 				(suitcore.batteries[1] * suitcore.partialchargemax) +
@@ -181,6 +190,15 @@ class HDPowersuitInterface : nullweapon
 				
 				warningoffset += 8;
 			}
+			
+			//heat
+			if (suitcore.suitheat > ((suitcore.maxheat * 2) + 1) && !suitcore.shutdownoverride)
+			{
+				sb.drawstring(sb.psmallfont, "! Heat critical !", (0, warningoffset), 
+					sb.DI_SCREEN_TOP | sb.DI_SCREEN_HCENTER | sb.DI_TEXT_ALIGN_CENTER, font.CR_RED);
+				
+				warningoffset += 8;
+			}
 		}
 		else
 		{
@@ -189,6 +207,10 @@ class HDPowersuitInterface : nullweapon
 			if (suitcore.integrity <= 0)
 			{
 				sb.drawstring(sb.psmallfont, "\cgINTEGRITY FAILURE",
+					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
+			}
+			else if (suitcore.overheated && ((suitcore.batteries[0] + suitcore.batteries[1]) > 0) && !suitcore.shutdownoverride){
+				sb.drawstring(sb.psmallfont, "\cgEMERGENCY SHUTDOWN. OVERHEATED",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
 			}
 			else
@@ -232,12 +254,12 @@ class HDPowersuitInterface : nullweapon
 		
 		super.modifydamage(damage, damagetype, newdamage, passive, inflictor, source, flags);
 	}
-	
 	states
 	{
 		ready:
 			TNT1 A 1 
 			{
+				//A_SetHelpText();
 				a_weaponready(WRF_NOFIRE | WRF_NOSECONDARY | WRF_NOSWITCH | WRF_ALLOWZOOM);
 				
 				if (player.cmd.buttons & BT_ZOOM && invoker.zoomamount < 3.0)
@@ -256,6 +278,12 @@ class HDPowersuitInterface : nullweapon
 				
 				a_zoomfactor(1.0 + invoker.zoomamount, ZOOM_INSTANT);
 				
+				if (player.cmd.buttons & BT_USER2){
+					if (invoker.suitcore.justpressed(BT_RELOAD) && invoker.suitcore.overheated){
+						invoker.suitcore.shutdownoverride=true;
+						invoker.suitcore.a_startsound("mech/powerup", 0, CHANF_OVERLAP);
+					}
+				}
 				if (invoker.suitcore.checkusable())
 				{
 					if (player.cmd.buttons & BT_USER2)
@@ -268,6 +296,10 @@ class HDPowersuitInterface : nullweapon
 						if (invoker.suitcore.justpressed(BT_ALTATTACK) && invoker.suitcore.torso.rightarm)
 						{
 							invoker.suitcore.torso.rightarm.changefiremode();
+						}
+						if (invoker.suitcore.justpressed(BT_ATTACK) && invoker.suitcore.overheated){
+							invoker.suitcore.shutdownoverride=true;
+							invoker.suitcore.a_startsound("mech/powerup", 0, CHANF_OVERLAP);
 						}
 					}
 					else

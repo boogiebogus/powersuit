@@ -20,6 +20,8 @@ class HDPowersuit : hdactor
 	int partialcharge, partialshieldcharge;
 	int repairparts;
 	bool hasarms, haslegs;
+	bool overheated;
+	bool shutdownoverride;
 	
 	int maxviewrotation;
 	int maxtorsorotation;
@@ -367,6 +369,31 @@ class HDPowersuit : hdactor
 			partialcharge--;
 		}
 		
+		if ((suitheat > ((maxheat * 3) + 1)) && !overheated && !shutdownoverride)
+		{
+			if(driver && checkbattery() && integrity > 0){
+			a_startsound("mech/powerout", 0, CHANF_OVERLAP);
+			a_startsound("mech/powerdown", 0, CHANF_OVERLAP);
+			}
+			suitheat--;
+			overheated=true;
+		}
+		
+		if (suitheat > 1 && overheated)
+		{
+			suitheat-=random(1,10);
+			A_GiveInventory("HDFireDouse",random(10,20));
+		}
+		
+		if ((suitheat < 1 && overheated))
+		{
+			if(driver && checkbattery() && integrity > 0 && !shutdownoverride)
+			a_startsound("mech/powerup", 0, CHANF_OVERLAP);
+			overheated=false;
+			suitheat=0;
+			shutdownoverride=false;
+		}
+		
 		if (integrity == 0)
 		{
 			a_startsound("mech/destroyed", 0, CHANF_OVERLAP);
@@ -387,7 +414,7 @@ class HDPowersuit : hdactor
 	
 	override bool cancollidewith(actor other, bool passive)
 	{
-		if (driver && other == driver)
+		if ((driver && (other == driver)) || (other.bMissile && other.target == driver))
 		{
 			return false;
 		}
@@ -684,7 +711,7 @@ class HDPowersuit : hdactor
 	{
 		if (mod == "electrical")
 		{
-			suitheat += damage * 8;
+			suitheat += damage * 3;
 		}
 		
 		if (mod == "piercing" && driver)
@@ -702,7 +729,7 @@ class HDPowersuit : hdactor
 		
 		if (mod == "balefire")
 		{
-			suitheat += damage * 12;
+			suitheat += damage * 6;
 		}
 		
 		return damage;
@@ -752,14 +779,9 @@ class HDPowersuit : hdactor
 	
 	bool checkusable()
 	{
-		if (self && checkbattery() && integrity > 0)
-		{
+		if (self && checkbattery() && integrity > 0 && (!overheated || shutdownoverride))
 			return true;
-		}
-		else
-		{
-			return false;
-		}
+		else return false;
 	}
 	
 	bool checkbattery()
