@@ -21,6 +21,7 @@ class HDPowersuit : hdactor
 	int repairparts;
 	bool hasarms, haslegs;
 	bool overheated;
+	bool shutdownoverride;
 	
 	int maxviewrotation;
 	int maxtorsorotation;
@@ -368,7 +369,7 @@ class HDPowersuit : hdactor
 			partialcharge--;
 		}
 		
-		if ((suitheat > ((maxheat * 3) + 1)) && !overheated)
+		if ((suitheat > ((maxheat * 3) + 1)) && !overheated && !shutdownoverride)
 		{
 			if(driver && checkbattery() && integrity > 0){
 			a_startsound("mech/powerout", 0, CHANF_OVERLAP);
@@ -381,15 +382,16 @@ class HDPowersuit : hdactor
 		if (suitheat > 1 && overheated)
 		{
 			suitheat-=random(1,10);
-			A_GiveInventory("HDFireDouse",random(1,20));
+			A_GiveInventory("HDFireDouse",random(10,20));
 		}
 		
-		if (suitheat < 1 && overheated)
+		if ((suitheat < 1 && overheated))
 		{
-			if(driver && checkbattery() && integrity > 0)
+			if(driver && checkbattery() && integrity > 0 && !shutdownoverride)
 			a_startsound("mech/powerup", 0, CHANF_OVERLAP);
 			overheated=false;
 			suitheat=0;
+			shutdownoverride=false;
 		}
 		
 		if (integrity == 0)
@@ -412,7 +414,7 @@ class HDPowersuit : hdactor
 	
 	override bool cancollidewith(actor other, bool passive)
 	{
-		if (driver && other == driver)
+		if ((driver && (other == driver)) || (other.bMissile && other.target == driver))
 		{
 			return false;
 		}
@@ -739,8 +741,7 @@ class HDPowersuit : hdactor
 		
 		if (inventoryheat)
 		{
-			if(!overheated)suitheat += min(inventoryheat.getamount(self), 10);
-			else suitheat++;
+			suitheat += min(inventoryheat.getamount(self), 10);
 		}
 		
 		if (suitheat > 0)
@@ -778,7 +779,7 @@ class HDPowersuit : hdactor
 	
 	bool checkusable()
 	{
-		if (self && checkbattery() && integrity > 0 && !overheated)
+		if (self && checkbattery() && integrity > 0 && (!overheated || shutdownoverride))
 			return true;
 		else return false;
 	}
