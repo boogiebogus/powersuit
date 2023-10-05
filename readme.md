@@ -8,7 +8,7 @@ of power armor, but rather more like a pocket-sized mech. With a modular gun mou
 the Mongoose brings enough firepower to easily plow through all of the demons commonly encountered
 by infantry units. Along with using the same armor plates found in battle armor, and using
 systems that can be easily replaced, the Mongoose is incredibly versatile and easy to maintain.
-However, it is still a mech, and as a result is not nearly as agile as being on-foot.
+However, it is still a mech, and as a result is not nearly as agile as being on-foot. Loadout code is `pst`.
 
 ## SPAWNING
 
@@ -50,3 +50,71 @@ Should there be a place you simply can't get the powersuit through, you can disa
 and transport each of the parts to the destination. In order to place the suit, simply use the
 torso inventory item. Note that the limbs can only be dropped from the item manager (press
 the mag manager button twice in a row).
+
+## WEAPONS
+
+### Leondias
+GZDoom actor name: `HDPowersuitVulcArmPickup`
+
+GZDoom ammo actor names: `HD4mmMag`
+
+Loadout code: `pw0`
+
+The standard weapon for the PST-2947b "Mongoose", the Leondias light machine gun uses 4.26mm magazines for general use in combat and especially in stormtrooper operations.
+
+They were commonly used as they were mass-manufactured by the UAC for the need for a mounted machine gun using the infamous 4.26mm UAC Standard rounds due to how common it was. Much like its smaller cousin, the Vulcanette, it doesn't have the full implementation of the notirious Volt's End User License Agreement. Therefore the reader is still reminded that it is illegal to load 4.26mm UAC Standard rounds into another weapon.
+
+Instructions: Same instructions as the Vulcanette, sans the need for batteries unless noted otherwise.
+
+Protip: There is no durability for the gun, so it will never break so keep on pushing the fight to them. Unless you ran out of ammo. That's gonna be a problem.
+
+
+### Calinicus
+GZDoom actor name: `HDPowersuitRocketArmPickup`
+
+GZDoom ammo actor names: `HDRocketAmmo`
+
+Loadout code: `pw1`
+
+Also a standard weapon for the Mongoose, the Calinicus automatic grenade launcher is also a reliable weapon for explosive needs.
+
+Instructions: Same instructions as the rocket launcher.
+
+
+### ZMG33 "Ares" Machine Gun
+GZDoom actor name: `HDPowersuitLibArmPickup`
+
+GZDoom ammo actor names: `HD7mMag`
+
+Loadout code: `pw2`
+
+Instructions: Treat it as the 7mm Vulcanette but not *the* Vulcanette found from Masterminds.
+
+Protip: You might wanna be mindful on who you'll shoot with as your trigger might tell you to waste ammo on said target.
+
+
+### Athena Light Assault Cannon
+
+GZDoom actor name: `HDPowersuitBrontoArmPickup`
+
+GZDoom ammo actor names: `BrontornisRound`
+
+Loadout code: `pw3`
+
+Protip: Guts. Huge, guts. Kill them. Must, kill them all.
+
+
+### Jackripper
+GZDoom actor name: `HDPowersuitSMGArmPickup`
+
+GZDoom ammo actor names: `HD9mmMag30`, `HDShellAmmo`
+
+Loadout code: `pw4`
+
+The answer by Credible, a small civilian lawfirm company that became an armed private military when the invasions began. When they got hold of one of the Mongoose powersuit units stolen from the UAAF, they have developed and sent in a single weapon platform utilizing the 9×22mm Parumpudicum and 12 gauge rounds respectively.
+
+The purpose was to use weaponry often picked up by the Tyrant forces and a common sidearm by all modern military forces that have become notorious for destroying shields at greater foes.
+
+The combination has proved effective and began immediate production within the month, thus leading to the birth of the Jackripper hybrid machine gun. The shotgun carries a 40-shell drum which brings extreme need for high maintenance at its 640rpm. The 9mm carbine fires at 1200rpm only, using 6 thirty round magazines.
+
+Protip: The Jackripper can perform extremely well against low to mid-tier demons.
