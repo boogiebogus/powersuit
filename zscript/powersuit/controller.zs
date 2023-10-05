@@ -15,9 +15,7 @@ class HDPowersuitInterface : nullweapon
 	
 	override string gethelptext()
 	{
-		if(suitcore && (suitcore.overheated && !suitcore.shutdownoverride))
-		return WEPHELP_FIREMODE.. " + "..WEPHELP_RELOAD.."  Override emergency shutdown";
-		else return WEPHELP_FIRE.."  Fire left gun\n"..
+		return WEPHELP_FIRE.."  Fire left gun\n"..
 			WEPHELP_ALTFIRE.."  Fire right gun\n"..
 			WEPHELP_FIREMODE.." + "..WEPHELP_FIRE.."  Change firemode (left)\n"..
 			WEPHELP_FIREMODE.." + "..WEPHELP_ALTFIRE.."  Change firemode (right)\n"..
@@ -25,8 +23,7 @@ class HDPowersuitInterface : nullweapon
 			WEPHELP_BTCOL.."Sprint"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Stomp\n"..
 			WEPHELP_BTCOL.."Crouch"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Get out\n"..
 			WEPHELP_BTCOL.."Jump"..WEPHELP_RGCOL.."  Jump jets\n"..
-			WEPHELP_ALTRELOAD.."  Align legs to torso"..
-			(suitcore.shutdownoverride?"\n\cgSHUTDOWN OVERRIDE ACTIVE":"");
+			WEPHELP_FIREMODE.. " + "..WEPHELP_RELOAD.."  Override emergency shutdown (If overheated)";
 	}
 	
 	override void doeffect()
@@ -140,6 +137,15 @@ class HDPowersuitInterface : nullweapon
 			//warnings
 			int warningoffset = 8;
 			
+			//override
+			if (suitcore.shutdownoverride)
+			{
+				sb.drawstring(sb.psmallfont, "! Shutdown override active !", (0, warningoffset), 
+					sb.DI_SCREEN_TOP | sb.DI_SCREEN_HCENTER | sb.DI_TEXT_ALIGN_CENTER, font.CR_RED);
+				
+				warningoffset += 8;
+			}
+			
 			//battery warning
 			if ((suitcore.batteries[0] * suitcore.partialchargemax) +
 				(suitcore.batteries[1] * suitcore.partialchargemax) +
@@ -248,19 +254,12 @@ class HDPowersuitInterface : nullweapon
 		
 		super.modifydamage(damage, damagetype, newdamage, passive, inflictor, source, flags);
 	}
-	bool baaa;
 	states
 	{
-		hahaha:
-			TNT1 A 1 A_SetHelpText();
-			loop;
 		ready:
 			TNT1 A 1 
 			{
-				if(!invoker.baaa){
-					A_Overlay(690,"hahaha");
-					invoker.baaa=true;
-				}
+				//A_SetHelpText();
 				a_weaponready(WRF_NOFIRE | WRF_NOSECONDARY | WRF_NOSWITCH | WRF_ALLOWZOOM);
 				
 				if (player.cmd.buttons & BT_ZOOM && invoker.zoomamount < 3.0)
