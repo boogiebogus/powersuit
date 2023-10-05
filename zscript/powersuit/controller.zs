@@ -15,7 +15,9 @@ class HDPowersuitInterface : nullweapon
 	
 	override string gethelptext()
 	{
-		return WEPHELP_FIRE.."  Fire left gun\n"..
+		if(suitcore.overheated && !suitcore.shutdownoverride)
+		return WEPHELP_FIREMODE.. " + "..WEPHELP_RELOAD.."  Override emergency shutdown";
+		else return WEPHELP_FIRE.."  Fire left gun\n"..
 			WEPHELP_ALTFIRE.."  Fire right gun\n"..
 			WEPHELP_FIREMODE.." + "..WEPHELP_FIRE.."  Change firemode (left)\n"..
 			WEPHELP_FIREMODE.." + "..WEPHELP_ALTFIRE.."  Change firemode (right)\n"..
@@ -23,7 +25,8 @@ class HDPowersuitInterface : nullweapon
 			WEPHELP_BTCOL.."Sprint"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Stomp\n"..
 			WEPHELP_BTCOL.."Crouch"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Get out\n"..
 			WEPHELP_BTCOL.."Jump"..WEPHELP_RGCOL.."  Jump jets\n"..
-			WEPHELP_ALTRELOAD.."  Align legs to torso";
+			WEPHELP_ALTRELOAD.."  Align legs to torso"..
+			(suitcore.shutdownoverride?"\n\cgSHUTDOWN OVERRIDE ACTIVE":"");
 	}
 	
 	override void doeffect()
@@ -181,6 +184,15 @@ class HDPowersuitInterface : nullweapon
 				
 				warningoffset += 8;
 			}
+			
+			//heat
+			if (suitcore.suitheat > ((suitcore.maxheat * 2) + 1) && !suitcore.shutdownoverride)
+			{
+				sb.drawstring(sb.psmallfont, "! Heat critical !", (0, warningoffset), 
+					sb.DI_SCREEN_TOP | sb.DI_SCREEN_HCENTER | sb.DI_TEXT_ALIGN_CENTER, font.CR_RED);
+				
+				warningoffset += 8;
+			}
 		}
 		else
 		{
@@ -191,7 +203,7 @@ class HDPowersuitInterface : nullweapon
 				sb.drawstring(sb.psmallfont, "\cgINTEGRITY FAILURE",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
 			}
-			else if (suitcore.overheated && ((suitcore.batteries[0] + suitcore.batteries[1]) > 0)){
+			else if (suitcore.overheated && ((suitcore.batteries[0] + suitcore.batteries[1]) > 0) && !suitcore.shutdownoverride){
 				sb.drawstring(sb.psmallfont, "\cgEMERGENCY SHUTDOWN. OVERHEATED",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
 			}
@@ -236,12 +248,19 @@ class HDPowersuitInterface : nullweapon
 		
 		super.modifydamage(damage, damagetype, newdamage, passive, inflictor, source, flags);
 	}
-	
+	bool baaa;
 	states
 	{
+		hahaha:
+			TNT1 A 1 A_SetHelpText();
+			loop;
 		ready:
 			TNT1 A 1 
 			{
+				if(!invoker.baaa){
+					A_Overlay(690,"hahaha");
+					invoker.baaa=true;
+				}
 				a_weaponready(WRF_NOFIRE | WRF_NOSECONDARY | WRF_NOSWITCH | WRF_ALLOWZOOM);
 				
 				if (player.cmd.buttons & BT_ZOOM && invoker.zoomamount < 3.0)
@@ -260,6 +279,12 @@ class HDPowersuitInterface : nullweapon
 				
 				a_zoomfactor(1.0 + invoker.zoomamount, ZOOM_INSTANT);
 				
+				if (player.cmd.buttons & BT_USER2){
+					if (invoker.suitcore.justpressed(BT_RELOAD) && invoker.suitcore.overheated){
+						invoker.suitcore.shutdownoverride=true;
+						invoker.suitcore.a_startsound("mech/powerup", 0, CHANF_OVERLAP);
+					}
+				}
 				if (invoker.suitcore.checkusable())
 				{
 					if (player.cmd.buttons & BT_USER2)
@@ -272,6 +297,10 @@ class HDPowersuitInterface : nullweapon
 						if (invoker.suitcore.justpressed(BT_ALTATTACK) && invoker.suitcore.torso.rightarm)
 						{
 							invoker.suitcore.torso.rightarm.changefiremode();
+						}
+						if (invoker.suitcore.justpressed(BT_ATTACK) && invoker.suitcore.overheated){
+							invoker.suitcore.shutdownoverride=true;
+							invoker.suitcore.a_startsound("mech/powerup", 0, CHANF_OVERLAP);
 						}
 					}
 					else
