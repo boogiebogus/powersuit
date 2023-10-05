@@ -76,7 +76,9 @@ GZDoom ammo actor names: `HDRocketAmmo`
 
 Loadout code: `pw1`
 
-Also a standard weapon for the Mongoose, the Calinicus automatic grenade launcher is also a reliable weapon for explosive needs.
+In a similar case of the Leonidas weapons platform, the Callinicus is a heavy platform designed for UAAF personnel carriers to fend off heavier targets. A drum fed Automatic Grenade Launcher, 12 rounds within the drum hand fed to the drum by infantry forces or other attached machinery. It utilizes the Heckler & Mok's Hybrid 40mm Rocket Grenades in either rocket mode or grenade mode.
+
+These rounds pack both functions of RPG and Fragmentation in a deadly and neat digital precise package. It cannot load High Explosive Anti Tank rounds. The rockets can reach out to 1,400 meters and it is capable of Airbursting features. Rapid fire with this platform is often common in combination of short range arched fire. Developed in unison with the Leonidas machine gun.
 
 Instructions: Same instructions as the rocket launcher.
 
@@ -88,18 +90,21 @@ GZDoom ammo actor names: `HD7mMag`
 
 Loadout code: `pw2`
 
+A direct response to the UAAF's development to the Callinicus and Leonidas when soldiers began attaching Liberators to the mech. The weapon is an ancient platform that predates the Liberator was brought out of the inventory of a museum by soldiers using the Mongoose and redesigned to mount four thirty round magazines of 7.76mm full-power rounds. Perhaps the most expensive weapon on the platform due to the extensive abuse of 7mm when the weapon is used. It has a fire toggle between semi-auto and full auto at 1,200rpm. The 7.76mm rounds are well known to crush through shielding systems.
+
 Instructions: Treat it as the 7mm Vulcanette but not *the* Vulcanette found from Masterminds.
 
 Protip: You might wanna be mindful on who you'll shoot with as your trigger might tell you to waste ammo on said target.
 
 
 ### Athena Light Assault Cannon
-
 GZDoom actor name: `HDPowersuitBrontoArmPickup`
 
 GZDoom ammo actor names: `BrontornisRound`
 
 Loadout code: `pw3`
+
+Utilizing heavy, non-self-propelled 35mm hi-ex anti-materiel/incendiary rounds that can punch through most hard targets while remaining highly effective at decisively neutralizing soft targets, the light assault cannon was developed after a few weeks the Freeley Intellectual Properties Group, who invented the Brontornis cannon, was contracted by the UAAF when the Callinicus was not operating at full efficiency, such as when units began discovering the Tyrant utilizing the Mongoose model on extremely rare occasions or often tanks in cramped city spaces. It has a six round tube for the 35mm rounds, sporting a unique look from all of the other weapon platforms. It only fires at semi-automatic.
 
 Protip: Guts. Huge, guts. Kill them. Must, kill them all.
 
@@ -113,8 +118,6 @@ Loadout code: `pw4`
 
 The answer by Credible, a small civilian lawfirm company that became an armed private military when the invasions began. When they got hold of one of the Mongoose powersuit units stolen from the UAAF, they have developed and sent in a single weapon platform utilizing the 9×22mm Parumpudicum and 12 gauge rounds respectively.
 
-The purpose was to use weaponry often picked up by the Tyrant forces and a common sidearm by all modern military forces that have become notorious for destroying shields at greater foes.
-
-The combination has proved effective and began immediate production within the month, thus leading to the birth of the Jackripper hybrid machine gun. The shotgun carries a 40-shell drum which brings extreme need for high maintenance at its 640rpm. The 9mm carbine fires at 1200rpm only, using 6 thirty round magazines.
+The purpose was to use weaponry often picked up by the Tyrant forces and a common sidearm by all modern military forces that have become notorious for destroying shields at greater foes. The combination has proved effective and began immediate production within the month, thus leading to the birth of the Jackripper hybrid machine gun. Two weapon systems in one. The shotgun carries a 40-shell drum which brings extreme need for high maintenance at its 640rpm. The 9mm carbine fires at 1200rpm only, using 6 thirty round magazines.
 
 Protip: The Jackripper can perform extremely well against low to mid-tier demons.
