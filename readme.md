@@ -78,7 +78,7 @@ Loadout code: `pw1`
 
 In a similar case of the Leonidas weapons platform, the Callinicus is a heavy platform designed for UAAF personnel carriers to fend off heavier targets. A drum fed Automatic Grenade Launcher, 12 rounds within the drum hand fed to the drum by infantry forces or other attached machinery. It utilizes the Heckler & Mok's Hybrid 40mm Rocket Grenades in either rocket mode or grenade mode.
 
-These rounds pack both functions of RPG and Fragmentation in a deadly and neat digital precise package. It cannot load High Explosive Anti Tank rounds. The rockets can reach out to 1,400 meters and it is capable of Airbursting features. Rapid fire with this platform is often common in combination of short range arched fire. Developed in unison with the Leonidas machine gun.
+These rounds pack both functions of RPG and Fragmentation in a deadly and neat digital precise package. It cannot load High Explosive Anti Tank rounds. The rockets can reach out to 1,400 meters but it is not capable of doing Airbursting features. Rapid fire with this platform is often common in combination of short range arched fire. Developed in unison with the Leonidas machine gun.
 
 Instructions: Same instructions as the rocket launcher.
 
