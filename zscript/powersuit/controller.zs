@@ -15,7 +15,7 @@ class HDPowersuitInterface : nullweapon
 	
 	override string gethelptext()
 	{
-		if(suitcore.overheated && !suitcore.shutdownoverride)
+		if(suitcore && (suitcore.overheated && !suitcore.shutdownoverride))
 		return WEPHELP_FIREMODE.. " + "..WEPHELP_RELOAD.."  Override emergency shutdown";
 		else return WEPHELP_FIRE.."  Fire left gun\n"..
 			WEPHELP_ALTFIRE.."  Fire right gun\n"..
