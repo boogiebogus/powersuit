@@ -26,7 +26,7 @@ it to the powersuit.
 
 Holding use will bring up controls for everything else. This applies for both the control
 interface and the maintenance screen. Note that on the maintenance screen, the controls will
-change depending on context, so make sure to check the controls on every option!
+change depending on context, so make sure to check the controls on every option! Each parts for integrity and armor can be found from disassembling HERPS and battle armor respectively. Loadout codes for two are `mip` and `arp` respectively.
 
 ## MECHANICS
 
