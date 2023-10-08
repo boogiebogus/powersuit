@@ -10,6 +10,7 @@ class HDPowersuitEditor : hdweapon
 	default
 	{
 		weapon.slotnumber 1;
+		tag "Mongoose Maintenance";
 	}
 	
 	override void attachtoowner(actor other)
@@ -21,6 +22,7 @@ class HDPowersuitEditor : hdweapon
 		options.push("Armor");
 		options.push("Integrity");
 		options.push("Parts");
+		options.push("Storage");
 		
 		super.attachtoowner(other);
 	}
@@ -32,7 +34,8 @@ class HDPowersuitEditor : hdweapon
 		SUIT_BATTERY,
 		SUIT_ARMOR,
 		SUIT_INTEGRITY,
-		SUIT_PARTS
+		SUIT_PARTS,
+		SUIT_STORAGE
 	};
 	
 	void resetaction()
@@ -96,11 +99,12 @@ class HDPowersuitEditor : hdweapon
 					break;
 				
 			case SUIT_ARMOR:
-				returnstring = returnstring..WEPHELP_RELOAD.."  Repair armor\n(needs battle armor in inventory)";
+				returnstring = returnstring..WEPHELP_RELOAD.."  Repair armor\n(needs armor plates)\n\n"..
+					WEPHELP_UNLOAD.."  Disassemble battle armor for plates\n(needs battle armor in inventory)";
 				break;
 				
 			case SUIT_INTEGRITY:
-				returnstring = returnstring..WEPHELP_RELOAD.."  Repair integrity\n(needs parts)\n\n"..
+				returnstring = returnstring..WEPHELP_RELOAD.."  Repair integrity\n(needs parts (Ones in the storage first))\n\n"..
 					WEPHELP_UNLOAD.."  Disassemble HERP for parts\n(needs HERP in inventory)";
 				break;
 				
@@ -111,6 +115,13 @@ class HDPowersuitEditor : hdweapon
 					WEPHELP_FIREMODE.." + "..WEPHELP_UNLOAD.."  Dismount legs\n\n"..
 					WEPHELP_UNLOAD.." "..WEPHELP_BTCOL.."without limbs"..WEPHELP_RGCOL.."  Pack up torso";
 				break;
+				
+				case SUIT_STORAGE:
+				returnstring = returnstring..WEPHELP_RELOAD.."  Store integrity parts\n"..
+					WEPHELP_FIREMODE.." + "..WEPHELP_RELOAD.."  Store armor plates\n"..
+					WEPHELP_UNLOAD.."  Take out integrity parts\n"..
+					WEPHELP_FIREMODE.." + "..WEPHELP_UNLOAD.."  Take out armor plates\n";
+					break;
 		}
 		
 		return returnstring;
@@ -140,6 +151,9 @@ class HDPowersuitEditor : hdweapon
 		
 		if (!(owner.player.cmd.buttons & BT_USE))
 		{
+			int plates = owner.countinv("MogArmorPlate");
+			int mogparts = owner.countinv("MogIntegrityPart");
+			bool hasparts = (owner.findinventory("MogIntegrityPart") || suitcore.repairparts > 0);
 			bool isleftarm = false;
 			switch(selected)
 			{
@@ -172,7 +186,7 @@ class HDPowersuitEditor : hdweapon
 					}
 					else
 					{
-						statusmessage = "\cjThis suit has \cgno arms.";
+						statusmessage = "\cjThis suit has \cgno arms\cj.";
 					}
 					
 					break;
@@ -201,20 +215,27 @@ class HDPowersuitEditor : hdweapon
 					
 				case SUIT_ARMOR:
 					statusmessage = "\cjDurability: \cd"..
-						int((suitcore.suitarmor.durability / float(suitcore.maxarmor)) * 100).."%";
+						int((suitcore.suitarmor.durability / float(suitcore.maxarmor)) * 100).."%\n
+						\cjArmor Plates: \cd"..((plates > 0) ? (plates.."") : "\cgNone");
 					break;
 					
 				case SUIT_INTEGRITY:
 					statusmessage = "\cjIntegrity: \cd"..
 						((suitcore.integrity > 0) ? (int((suitcore.integrity / float(suitcore.maxintegrity)) * 100).."%") : "\cgCritically damaged")..
-						"\n\cjRepair materials: \cd"..((suitcore.repairparts > 0) ? (suitcore.repairparts.."") : "\cgNone").. //don't ask about suitcore.repairparts.."", it just works
-						" \cj(max "..suitcore.maxparts..")";
+						"\n\cjRepair materials: \cd"..((hasparts) ? (suitcore.repairparts+mogparts.."") : "\cgNone"); //don't ask about suitcore.repairparts.."", it just works
 					break;
 					
 				case SUIT_PARTS:
 					statusmessage = "\cjArms: \cd"..(suitcore.hasarms ? "Good" : "\cgNone")..
 						"\n\cjLegs: \cd"..(suitcore.haslegs ? "Good" : "\cgNone")..
 						"\n\cjCan pack up chassis: \cd"..((!suitcore.hasarms && !suitcore.haslegs) ? "Yes" : "\cgNo");
+					break;
+					
+				case SUIT_STORAGE:
+					statusmessage = "\cjIntegrity parts: \cd"..((suitcore.repairparts > 0) ? (suitcore.repairparts.."") : "\cgNone").. //don't ask about suitcore.repairparts.."", it just works
+						" \cj(max "..suitcore.maxparts..")\n
+						\cjArmor plates: \cd"..((suitcore.armorplates > 0) ? (suitcore.armorplates.."") : "\cgNone").. //don't ask about suitcore.repairparts.."", it just works
+						" \cj(max "..suitcore.maxplates..")";
 					break;
 			}
 		}
@@ -479,15 +500,15 @@ class HDPowersuitEditor : hdweapon
 										{
 											if (!invoker.suitcore.hasarms)
 											{
-												a_print("There's no arms to mount that on.");
+												A_WeaponMessage("There's no arms to mount that on.",70);
 											}
 											else if (!(currentarm is "hdpowersuitblankarm"))
 											{
-												a_print("There's already a weapon mounted here.");
+												A_WeaponMessage("There's already a weapon mounted here.",70);
 											}
 											else if (!invoker.armitem)
 											{
-												a_print("You don't have any weapons to mount.");
+												A_WeaponMessage("You don't have any weapons to mount.",70);
 											}
 										}
 										
@@ -539,7 +560,7 @@ class HDPowersuitEditor : hdweapon
 											{
 												if (currentarm is "hdpowersuitblankarm")
 												{
-													a_print("There's no weapon here.");
+													A_WeaponMessage("There's no weapon here.",70);
 												}
 											}
 											
@@ -616,22 +637,22 @@ class HDPowersuitEditor : hdweapon
 									{
 										if (currentarm is "hdpowersuitblankarm")
 										{
-											a_print("There's no weapon here.");
+											A_WeaponMessage("There's no weapon here.",70);
 										}
 										else if (!currentarm.checkload(usealtammo))
 										{
-											a_print("There's no room for any more "..
-												(usealtammo ? "alt. " : "").."ammo.");
+											A_WeaponMessage("There's no room for any more "..
+												(usealtammo ? "alt. " : "").."ammo.",70);
 										}
 										else if (!magammo && !nonmagammo)
 										{
 											if (usealtammo)
 											{
-												a_print("You don't have any alternate ammo.");
+												A_WeaponMessage("You don't have any alternate ammo.",70);
 											}
 											else
 											{
-												a_print("You don't have any ammo.");
+												A_WeaponMessage("You don't have any ammo.",70);
 											}
 										}
 									}
@@ -685,12 +706,12 @@ class HDPowersuitEditor : hdweapon
 									{
 										if (currentarm is "hdpowersuitblankarm")
 										{
-											a_print("There's no weapon here.");
+											A_WeaponMessage("There's no weapon here.",70);
 										}
 										else if (!currentarm.checkunload(usealtammo))
 										{
-											a_print("There's no "..
-												(usealtammo ? "alt. " : "").."ammo left in this.");
+											A_WeaponMessage("There's no "..
+												(usealtammo ? "alt. " : "").."ammo left in this.",70);
 										}
 									}
 									
@@ -746,11 +767,11 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (invoker.suitcore.batteries[battnum] >= 0)
 									{
-										a_print("This slot already has a battery.");
+										A_WeaponMessage("This slot already has a battery.",70);
 									}
 									else if (!countinv("hdbattery"))
 									{
-										a_print("You don't have any batteries.");
+										A_WeaponMessage("You don't have any batteries.",70);
 									}
 								}
 								
@@ -784,7 +805,7 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (invoker.suitcore.batteries[battnum] < 0)
 									{
-										a_print("There's no battery in that slot.");
+										A_WeaponMessage("There's no battery in that slot.",70);
 									}
 								}
 								invoker.actiontime = -1;
@@ -799,20 +820,19 @@ class HDPowersuitEditor : hdweapon
 					case SUIT_ARMOR:
 						if (player.cmd.buttons & BT_RELOAD)
 						{
-							let armorvar = hdarmour(findinventory("hdarmour"));
 							
-							if (invoker.suitcore.suitarmor.durability < invoker.suitcore.maxarmor && armorvar && armorvar.mega)
+							if (invoker.suitcore.suitarmor.durability < invoker.suitcore.maxarmor && countinv("mogarmorplate")>0)
 							{
-								invoker.actiontime = 350;
+								invoker.actiontime = 105;
 								invoker.actionmessage = "Repairing armor";
 								
 								if (invoker.actionprogress >= invoker.actiontime)
 								{
-									if (armorvar)
+									if (countinv("mogarmorplate")>0)
 									{
-										int amount = armorvar.takemag(true);
+										a_takeinventory("mogarmorplate",1);
 										invoker.suitcore.suitarmor.durability = min(invoker.suitcore.suitarmor.durability + 
-											max(random(amount - 5, amount - 15), 0), invoker.suitcore.maxarmor);
+											max(random(25 - 5, 25 - 15), 0), invoker.suitcore.maxarmor);
 									}
 									invoker.resetaction();
 								}
@@ -827,11 +847,53 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (invoker.suitcore.suitarmor.durability >= invoker.suitcore.maxarmor)
 									{
-										a_print("No need to repair.");
+										A_WeaponMessage("No need to repair.",70);
 									}
-									else if (!armorvar || !armorvar.mega)
+									else if (countinv("mogarmorplate")<1)
 									{
-										a_print("You don't have any battle armor.");
+										A_WeaponMessage("You don't have any armor plates.",70);
+									}
+								}
+								
+								invoker.actiontime = -1;
+							}
+						}
+						else if (player.cmd.buttons & BT_USER4)
+						{
+							let armorvar = hdarmour(findinventory("hdarmour"));
+							
+							if (armorvar && armorvar.mega)
+							{
+								invoker.actiontime = 350;
+								invoker.actionmessage = "Disassembling battle armor";
+								//if(invoker.actionprogress > 0)invoker.actionprogress = 0;
+								
+								if (invoker.actionprogress >= invoker.actiontime)
+								{
+									if (armorvar)
+									{
+										int amount = armorvar.takemag(true);
+										A_GiveInventory("MogArmorPlate",random(25-5,25-15));
+									}
+									
+									invoker.resetaction();
+								}
+								else
+								{
+									invoker.actionprogress++;
+								}
+							}
+							else
+							{
+								if (invoker.justpressed(BT_USER4))
+								{
+									/*if (invoker.suitcore.repairparts >= invoker.suitcore.maxparts)
+									{
+										A_WeaponMessage("That's enough parts for now.",70);
+									}
+									else */if (!armorvar)
+									{
+										A_WeaponMessage("You don't have any battle armor.",70);
 									}
 								}
 								
@@ -847,16 +909,25 @@ class HDPowersuitEditor : hdweapon
 					case SUIT_INTEGRITY:
 						if (player.cmd.buttons & BT_RELOAD)
 						{
-							if (invoker.suitcore.integrity < invoker.suitcore.maxintegrity && invoker.suitcore.repairparts > 0)
+							if (invoker.suitcore.integrity < invoker.suitcore.maxintegrity && ((invoker.suitcore.repairparts > 0 ) || countinv("mogintegritypart") > 0))
 							{
 								invoker.actiontime = 105;
 								invoker.actionmessage = "Repairing integrity";
 								
 								if (invoker.actionprogress >= invoker.actiontime)
 								{
-									invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 7), invoker.suitcore.maxintegrity);
-									invoker.suitcore.repairparts = max(invoker.suitcore.repairparts - random(2, 5), 0);
-									invoker.resetaction();
+									if(invoker.suitcore.repairparts > 0){
+										invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 7), invoker.suitcore.maxintegrity);
+										invoker.suitcore.repairparts = max(invoker.suitcore.repairparts - random(2, 5), 0);
+									}else{
+										hdpickup integrityparts=hdpickup(findinventory("mogintegritypart"));
+										if(integrityparts.amount>0){
+											int intparts=countinv("MogIntegrityPart");
+											invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 7), invoker.suitcore.maxintegrity);
+											A_TakeInventory("MogIntegrityPart",random(2, 5));
+											}
+									}
+								invoker.resetaction();
 								}
 								else
 								{
@@ -869,22 +940,21 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (invoker.suitcore.integrity >= invoker.suitcore.maxintegrity)
 									{
-										a_print("No need to repair.");
+										A_WeaponMessage("No need to repair.",70);
 									}
-									else if (invoker.suitcore.repairparts <= 0)
+									else if (invoker.suitcore.repairparts <= 0 && !findinventory("mogintegritypart"))
 									{	
-										a_print("You're out of parts.");
+										A_WeaponMessage("You don't have any parts.",70);
 									}
 								}
-								
-								invoker.resetaction();
+							invoker.resetaction();
 							}
 						}
 						else if (player.cmd.buttons & BT_USER4)
 						{
 							let herpvar = herpusable(findinventory("herpusable"));
 							
-							if (invoker.suitcore.repairparts < invoker.suitcore.maxparts && herpvar)
+							if (herpvar)
 							{
 								invoker.actiontime = 350;
 								invoker.actionmessage = "Disassembling HERP";
@@ -917,12 +987,12 @@ class HDPowersuitEditor : hdweapon
 										
 										if (herpstatus & HERPF_BROKEN)
 										{
-											invoker.suitcore.repairparts += random(10, 20);
+											A_GiveInventory("mogintegritypart",random(10, 20));
 											disassemblestring = disassemblestring.."A lot of parts in that H.E.R.P. were damaged...\n\n";
 										}
 										else
 										{
-											invoker.suitcore.repairparts += random(20, 30);
+											A_GiveInventory("mogintegritypart",random(20, 30));
 										}
 										
 										if (invoker.suitcore.repairparts > invoker.suitcore.maxparts)
@@ -979,7 +1049,7 @@ class HDPowersuitEditor : hdweapon
 										
 										if (disassemblestring != "")
 										{
-											a_print(disassemblestring);
+											A_WeaponMessage(disassemblestring,70);
 										}
 										
 										if (usespare)
@@ -1005,13 +1075,13 @@ class HDPowersuitEditor : hdweapon
 							{
 								if (invoker.justpressed(BT_USER4))
 								{
-									if (invoker.suitcore.repairparts >= invoker.suitcore.maxparts)
+									/*if (invoker.suitcore.repairparts >= invoker.suitcore.maxparts)
 									{
-										a_print("That's enough parts for now.");
+										A_WeaponMessage("That's enough parts for now.",70);
 									}
-									else if (!herpvar)
+									else */if (!herpvar)
 									{
-										a_print("You don't have any H.E.R.P. bots.");
+										A_WeaponMessage("You don't have any H.E.R.P. bots.",70);
 									}
 								}
 								
@@ -1070,19 +1140,19 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (invoker.suitcore.hasarms)
 									{
-										a_print("There's no need to attach arms.");
+										A_WeaponMessage("There's no need to attach arms.",70);
 									}
 									else if (invoker.suitcore.haslegs && player.cmd.buttons & BT_USER2)
 									{
-										a_print("There's no need to attach legs.");
+										A_WeaponMessage("There's no need to attach legs.",70);
 									}
 									else if (!(findinventory("hdpowersuitbotharmspickup")))
 									{
-										a_print("You don't have a pair of powersuit arms.");
+										A_WeaponMessage("You don't have a pair of powersuit arms.",70);
 									}
 									else if (!(findinventory("hdpowersuitlegspickup")) && player.cmd.buttons & BT_USER2)
 									{
-										a_print("You don't have a pair of powersuit legs.");
+										A_WeaponMessage("You don't have a pair of powersuit legs.",70);
 									}
 								}
 								
@@ -1152,6 +1222,7 @@ class HDPowersuitEditor : hdweapon
 									droppeditem.batteries[1] = invoker.suitcore.batteries[1];
 									droppeditem.batteries[2] = invoker.suitcore.batteries[2];
 									droppeditem.repairparts = invoker.suitcore.repairparts;
+									droppeditem.armorplates = invoker.suitcore.armorplates;
 									droppeditem.translation = invoker.suitcore.torso.translation;
 									
 									invoker.suitcore.torso.leftleg.destroy();
@@ -1174,21 +1245,21 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (invoker.suitcore.driver && self != invoker.suitcore.driver)
 									{
-										a_print("You can't do that while the driver is still inside.");
+										A_WeaponMessage("You can't do that while the driver is still inside.",70);
 									}
 									else if (!invoker.suitcore.hasarms && !(player.cmd.buttons & BT_USER2))
 									{
-										a_print("There's no arms to remove.");
+										A_WeaponMessage("There's no arms to remove.",70);
 									}
 									else if (!invoker.suitcore.haslegs && player.cmd.buttons & BT_USER2)
 									{
-										a_print("There's no legs to remove.");
+										A_WeaponMessage("There's no legs to remove.",70);
 									}
 									else if (invoker.suitcore.hasarms &&
 										(!(invoker.suitcore.torso.leftarm is "hdpowersuitblankarm") ||
 										!(invoker.suitcore.torso.rightarm is "hdpowersuitblankarm")))
 									{
-										a_print("There's still weapons mounted. Remove them first.");
+										A_WeaponMessage("There's still weapons mounted. Remove them first.",70);
 									}
 								}
 								
@@ -1200,8 +1271,196 @@ class HDPowersuitEditor : hdweapon
 							invoker.resetaction();
 						}
 						break;
+						
+						case SUIT_STORAGE:
+						if (player.cmd.buttons & BT_RELOAD)
+						{
+							if (player.cmd.buttons & BT_USER2){
+								if (invoker.suitcore.armorplates < invoker.suitcore.maxplates && countinv("mogarmorplate") > 0)
+								{
+									invoker.actiontime = 4;
+									invoker.actionmessage = "Storing armor plates";
+									
+									if (invoker.actionprogress >= invoker.actiontime)
+									{
+										invoker.suitcore.armorplates++;
+										A_TakeInventory("MogArmorPlate",1);
+										invoker.resetaction();
+									}
+									else
+									{
+										invoker.actionprogress++;
+									}
+								}
+								else
+								{
+									if (invoker.justpressed(BT_RELOAD))
+									{
+										if (invoker.suitcore.armorplates >= invoker.suitcore.maxplates)
+										{
+											A_WeaponMessage("This slot is full.",70);
+										}
+										else if (!findinventory("mogarmorplate"))
+										{	
+											A_WeaponMessage("You don't have any plates to store.",70);
+										}
+									}
+								invoker.resetaction();
+								}
+							}
+							else
+							{
+								if (invoker.suitcore.repairparts < invoker.suitcore.maxparts && countinv("mogintegritypart") > 0)
+								{
+									invoker.actiontime = 1;
+									invoker.actionmessage = "Storing repair materials";
+									
+									if (invoker.actionprogress >= invoker.actiontime)
+									{
+										invoker.suitcore.repairparts++;
+										A_TakeInventory("MogIntegrityPart",1);
+										invoker.resetaction();
+									}
+									else
+									{
+										invoker.actionprogress++;
+									}
+								}
+								else
+								{
+									if (invoker.justpressed(BT_RELOAD))
+									{
+										if (invoker.suitcore.repairparts >= invoker.suitcore.maxparts)
+										{
+											A_WeaponMessage("This slot is full.",70);
+										}
+										else if (!findinventory("mogintegritypart"))
+										{	
+											A_WeaponMessage("You don't have any parts to store.",70);
+										}
+									}
+								invoker.resetaction();
+								}
+							}
+						}
+						else if (player.cmd.buttons & BT_USER4)
+						{
+							if (player.cmd.buttons & BT_USER2){
+								if (invoker.suitcore.armorplates > 0)
+								{
+									invoker.actiontime = 8;
+									invoker.actionmessage = "Taking out armor plates";
+									
+									if (invoker.actionprogress >= invoker.actiontime)
+									{
+										invoker.suitcore.armorplates--;
+										A_GiveInventory("MogArmorPlate",1);
+										invoker.resetaction();
+									}
+									else
+									{
+										invoker.actionprogress++;
+									}
+								}
+								else
+								{
+									if (invoker.justpressed(BT_USER4))
+									{
+										if (invoker.suitcore.armorplates < 1)
+										{
+											A_WeaponMessage("This slot is empty.",70);
+										}
+									}
+									
+									invoker.actiontime = -1;
+								}
+							}
+							else
+							{
+								if (invoker.suitcore.repairparts > 0)
+								{
+									invoker.actiontime = 4;
+									invoker.actionmessage = "Taking out repair parts";
+									
+									if (invoker.actionprogress >= invoker.actiontime)
+									{
+										invoker.suitcore.repairparts--;
+										A_GiveInventory("MogIntegrityPart",1);
+										invoker.resetaction();
+									}
+									else
+									{
+										invoker.actionprogress++;
+									}
+								}
+								else
+								{
+									if (invoker.justpressed(BT_USER4))
+									{
+										if (invoker.suitcore.repairparts < 1)
+										{
+											A_WeaponMessage("This slot is empty.",70);
+										}
+									}
+									
+									invoker.actiontime = -1;
+								}
+							}
+						}
+						else
+						{
+							invoker.resetaction();
+						}
+						break;
 				}
+				invoker.msgtimer--;
 			}
 			loop;
+	}
+}
+
+class MogArmorPlate:HDAmmo{
+	default{
+		+inventory.ignoreskill +cannotpush
+		+hdpickup.multipickup
+		+hdpickup.cheatnogive
+		height 4;radius 4;
+		tag "Armor Plate";
+		hdpickup.refid "arp";
+		hdpickup.bulk 15.21; //On March 16, 1521... When Philippines was discovered by Magellan.
+		scale 1.3;
+		inventory.pickupmessage "Picked up an armor plate.";
+		inventory.icon "MPAPA0";
+	}
+	override void GetItemsThatUseThis(){
+		itemsthatusethis.push("HDFist"); //haha
+	}
+	states{
+	spawn:
+		MPAP A -1;
+		stop;
+	}
+}
+
+class MogIntegrityPart:HDAmmo{
+	default{
+		+inventory.ignoreskill +cannotpush
+		+hdpickup.multipickup
+		+hdpickup.cheatnogive
+		height 4;radius 4;
+		tag "Disassembled H.E.R.P. Robot Part";
+		hdpickup.refid "mip";
+		hdpickup.bulk 7;
+		scale 0.3;
+		inventory.pickupmessage "Picked up a disassembled H.E.R.P. part.";
+		inventory.icon "MPIPA0";
+	}
+	override void GetItemsThatUseThis(){
+		itemsthatusethis.push("HDFist"); //haha
+	}
+	states{
+	spawn:
+		MPIP A -1;
+		stop;
 	}
 }
