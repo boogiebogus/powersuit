@@ -515,4 +515,16 @@ Sprite "JKRPZ0", 55, 20
 	Patch "JKRPZ0", 0, 0
 }
 
-// End of texture definitions
+// End of SLADE-defined texture definitions
+
+Sprite "MPIPA0", 24, 12
+{
+	Offset 12, 12
+	Sprite "MPIPA0", 0, 0
+}
+
+Sprite "MPAPA0", 7, 10
+{
+	Offset 4, 10
+	Sprite "MPAPA0", 0, 0
+}

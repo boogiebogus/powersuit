@@ -312,6 +312,7 @@ class hdpowersuitcorepickup : hdpickup
 	int armordurability;
 	int batteries[3];
 	int repairparts;
+	int armorplates;
 	
 	default
 	{
@@ -343,6 +344,7 @@ class hdpowersuitcorepickup : hdpickup
 					suit.batteries[1] = invoker.batteries[1];
 					suit.batteries[2] = invoker.batteries[2];
 					suit.repairparts = invoker.repairparts;
+					suit.armorplates = invoker.armorplates;
 					suit.suitarmor.durability = invoker.armordurability;
 					suit.torso.translation = translation;
 					suit.torso.leftleg.translation = translation;

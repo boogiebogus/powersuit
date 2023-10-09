@@ -37,6 +37,8 @@ class HDPowersuit : hdactor
 	int partialchargemax;
 	int maxparts;
 	double turnspeed;
+	int armorplates;
+	int maxplates;
 	
 	property maxviewrotation : maxviewrotation;
 	property maxtorsorotation : maxtorsorotation;
@@ -52,6 +54,8 @@ class HDPowersuit : hdactor
 	property partialchargemax : partialchargemax;
 	property maxparts : maxparts;
 	property turnspeed : turnspeed;
+	property armorplates : armorplates;
+	property maxplates : maxplates;
 	
 	default
 	{
@@ -86,7 +90,8 @@ class HDPowersuit : hdactor
 		hdpowersuit.maxshields 200;
 		hdpowersuit.maxintegrity 100;
 		hdpowersuit.partialchargemax 1575;
-		hdpowersuit.maxparts 50;
+		hdpowersuit.maxparts 60;
+		hdpowersuit.maxplates 15;
 		hdpowersuit.turnspeed 2.0;
 	}
 	

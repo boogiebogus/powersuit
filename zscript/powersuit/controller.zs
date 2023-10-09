@@ -297,7 +297,7 @@ class HDPowersuitInterface : nullweapon
 						{
 							invoker.suitcore.torso.rightarm.changefiremode();
 						}
-						if (invoker.suitcore.justpressed(BT_ATTACK) && invoker.suitcore.overheated){
+						if (invoker.suitcore.justpressed(BT_ATTACK) && invoker.suitcore.overheated && !invoker.suitcore.shutdownoverride){
 							invoker.suitcore.shutdownoverride=true;
 							invoker.suitcore.a_startsound("mech/powerup", 0, CHANF_OVERLAP);
 						}

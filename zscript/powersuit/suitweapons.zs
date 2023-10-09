@@ -702,18 +702,18 @@ class HDPowersuitArmPickup : HDWeapon
 						{
 							if (!currentarm.checkload(usealtammo))
 							{
-								a_print("There's no room for any more "..
-									(usealtammo ? "alt. " : "").."ammo.");
+								A_WeaponMessage("There's no room for any more "..
+									(usealtammo ? "alt. " : "").."ammo.",70);
 							}
 							else if (!magammo && !nonmagammo)
 							{
 								if (usealtammo)
 								{
-									a_print("You don't have any alternate ammo.");
+									A_WeaponMessage("You don't have any alternate ammo.",70);
 								}
 								else
 								{
-									a_print("You don't have any ammo.");
+									A_WeaponMessage("You don't have any ammo.",70);
 								}
 							}
 						}
@@ -768,12 +768,12 @@ class HDPowersuitArmPickup : HDWeapon
 						{
 							if (currentarm is "hdpowersuitblankarm")
 							{
-								a_print("There's no weapon here.");
+								A_WeaponMessage("There's no weapon here.",70);
 							}
 							else if (!currentarm.checkunload(usealtammo))
 							{
-								a_print("There's no "..
-									(usealtammo ? "alt. " : "").."ammo left in this.");
+								A_WeaponMessage("There's no "..
+									(usealtammo ? "alt. " : "").."ammo left in this.",70);
 							}
 						}
 						
@@ -786,6 +786,7 @@ class HDPowersuitArmPickup : HDWeapon
 					invoker.actionprogress = 0;
 					invoker.actiontime = -1;
 				}
+				invoker.msgtimer--;
 				
 				array<int> weaponstatus;
 				weaponstatus.resize(HDWEP_STATUSSLOTS);
