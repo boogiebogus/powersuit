@@ -270,10 +270,10 @@ class HDPowersuitEditor : hdweapon
 		{
 			letter = "D";
 		}*/
-		
-		// LZDoom compat hack: override CPlayer to translate the image
-        let prevCPlayer = sb.CPlayer;
-        sb.CPlayer = players[suitcore.torso.translation & 65535];
+
+        	let prevCPlayer = sb.CPlayer;
+		//This used to be an LZDoom compat hack, but no longer functions now.
+       		//sb.CPlayer = players[suitcore.torso.translation & 65535];
 
 		if (suitcore.haslegs)
 		{	
