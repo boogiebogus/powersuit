@@ -752,6 +752,7 @@ class HDPowersuitEditor : hdweapon
 									if (battery)
 									{
 										invoker.suitcore.batteries[battnum] = battery.takemag(true);
+										invoker.suitcore.A_StartSound("weapons/plasload",CHAN_BODY,CHANF_OVERLAP);
 									}
 									
 									invoker.resetaction();
@@ -791,6 +792,7 @@ class HDPowersuitEditor : hdweapon
 								{
 									hdmagammo.givemag(self, "hdbattery", invoker.suitcore.batteries[battnum]);
 									invoker.suitcore.batteries[battnum] = -1;
+									invoker.suitcore.A_StartSound("weapons/plasopen",CHAN_BODY,CHANF_OVERLAP);
 									
 									invoker.resetaction();
 								}
@@ -919,6 +921,7 @@ class HDPowersuitEditor : hdweapon
 								
 								if (invoker.actionprogress >= invoker.actiontime)
 								{
+									invoker.suitcore.A_StartSound("mech/integrityfix",CHAN_BODY,CHANF_OVERLAP,volume:0.6);
 									if(invoker.suitcore.repairparts > 0){
 										invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 7), invoker.suitcore.maxintegrity);
 										invoker.suitcore.repairparts = max(invoker.suitcore.repairparts - random(2, 5), 0);
@@ -927,7 +930,6 @@ class HDPowersuitEditor : hdweapon
 										if(integrityparts.amount>0){
 											int intparts=countinv("MogIntegrityPart");
 											invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 9), invoker.suitcore.maxintegrity);
-											invoker.suitcore.A_StartSound("mech/integrityfix",CHAN_BODY,CHANF_OVERLAP,volume:0.6);
 											A_TakeInventory("MogIntegrityPart",random(2, 5));
 											}
 									}
