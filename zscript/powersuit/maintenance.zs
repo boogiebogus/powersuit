@@ -752,6 +752,7 @@ class HDPowersuitEditor : hdweapon
 									if (battery)
 									{
 										invoker.suitcore.batteries[battnum] = battery.takemag(true);
+										invoker.suitcore.A_StartSound("weapons/plasload",CHAN_BODY,CHANF_OVERLAP);
 									}
 									
 									invoker.resetaction();
@@ -791,6 +792,7 @@ class HDPowersuitEditor : hdweapon
 								{
 									hdmagammo.givemag(self, "hdbattery", invoker.suitcore.batteries[battnum]);
 									invoker.suitcore.batteries[battnum] = -1;
+									invoker.suitcore.A_StartSound("weapons/plasopen",CHAN_BODY,CHANF_OVERLAP);
 									
 									invoker.resetaction();
 								}
@@ -830,6 +832,7 @@ class HDPowersuitEditor : hdweapon
 								{
 									if (countinv("mogarmorplate")>0)
 									{
+										invoker.suitcore.A_StartSound("mech/armorfix",CHAN_BODY,CHANF_OVERLAP,volume:0.6);
 										a_takeinventory("mogarmorplate",1);
 										invoker.suitcore.suitarmor.durability = min(invoker.suitcore.suitarmor.durability + 
 											max(random(25 - 5, 25 - 15), 0), invoker.suitcore.maxarmor);
@@ -860,7 +863,7 @@ class HDPowersuitEditor : hdweapon
 						}
 						else if (player.cmd.buttons & BT_USER4)
 						{
-							let armorvar = hdarmour(findinventory("hdarmour"));
+							hdarmour armorvar = hdarmour(findinventory("hdarmour"));
 							
 							if (armorvar && armorvar.mega)
 							{
@@ -873,7 +876,9 @@ class HDPowersuitEditor : hdweapon
 									if (armorvar)
 									{
 										int amount = armorvar.takemag(true);
-										A_GiveInventory("MogArmorPlate",random(25-5,25-15));
+										int battleardur = amount-1000;
+										A_GiveInventory("MogArmorPlate",max(battleardur/10,1));
+										//A_GiveInventory("MogArmorPlate",random(25-5,25-15));
 									}
 									
 									invoker.resetaction();
@@ -916,6 +921,7 @@ class HDPowersuitEditor : hdweapon
 								
 								if (invoker.actionprogress >= invoker.actiontime)
 								{
+									invoker.suitcore.A_StartSound("mech/integrityfix",CHAN_BODY,CHANF_OVERLAP,volume:0.6);
 									if(invoker.suitcore.repairparts > 0){
 										invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 7), invoker.suitcore.maxintegrity);
 										invoker.suitcore.repairparts = max(invoker.suitcore.repairparts - random(2, 5), 0);
@@ -923,7 +929,7 @@ class HDPowersuitEditor : hdweapon
 										hdpickup integrityparts=hdpickup(findinventory("mogintegritypart"));
 										if(integrityparts.amount>0){
 											int intparts=countinv("MogIntegrityPart");
-											invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 7), invoker.suitcore.maxintegrity);
+											invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 9), invoker.suitcore.maxintegrity);
 											A_TakeInventory("MogIntegrityPart",random(2, 5));
 											}
 									}

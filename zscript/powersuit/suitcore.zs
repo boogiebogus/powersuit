@@ -66,6 +66,8 @@ class HDPowersuit : hdactor
 		+slidesonwalls
 		+invulnerable
 		+noblood
+		-notelestomp
+		+telestomp //it still doesn't telefrag stuff though
 		//+invisible
 		+dropoff
 		+blockasplayer
@@ -90,8 +92,8 @@ class HDPowersuit : hdactor
 		hdpowersuit.maxshields 200;
 		hdpowersuit.maxintegrity 100;
 		hdpowersuit.partialchargemax 1575;
-		hdpowersuit.maxparts 60;
-		hdpowersuit.maxplates 15;
+		hdpowersuit.maxparts 70;
+		hdpowersuit.maxplates 20;
 		hdpowersuit.turnspeed 2.0;
 	}
 	
@@ -199,6 +201,8 @@ class HDPowersuit : hdactor
 		
 		super.tick();
 		
+		if(integrity < 0)integrity=0;
+		
 		if (driver)
 		{
 			driver.warp(self, 0, 0, 2, 0, WARPF_USECALLERANGLE | WARPF_INTERPOLATE
@@ -213,6 +217,10 @@ class HDPowersuit : hdactor
 			hdplayerpawn(driver).tauntsound = "mech/horn";
 		}
 		bool issteering = false;
+		if((countinv("HDFireEnder")>0)&&suitheat>0){
+		suitheat-=random(10,35);
+		A_TakeInventory("HDFireEnder",1);
+		}
 		
 		if (driver && checkusable())
 		{
@@ -399,10 +407,10 @@ class HDPowersuit : hdactor
 			shutdownoverride=false;
 		}
 		
-		if (integrity == 0)
+		if (integrity < 1 && !bKILLED)
 		{
 			a_startsound("mech/destroyed", 0, CHANF_OVERLAP);
-			integrity = -1;
+			//integrity = -1;
 			bKILLED = true;
 			health = -1;
 		}
@@ -717,6 +725,7 @@ class HDPowersuit : hdactor
 		if (mod == "electrical")
 		{
 			suitheat += damage * 3;
+			if(!random(0,4))integrity -= random(3,10);
 		}
 		
 		if (mod == "piercing" && driver)
@@ -732,10 +741,15 @@ class HDPowersuit : hdactor
 			}
 		}
 		
-		if (mod == "balefire")
+		if (mod == "hot")
 		{
-			suitheat += damage * 6;
+			if(!random(0,32))integrity--;
 		}
+		
+		if (mod == "balefire")suitheat += damage * 6;
+		
+		// [Renegade4339] I may do a direct check for rockets since HEAT (cyberdemon) rockets barely do anything
+		// to the mech unless if someone is aiming to the head to kill the driver (if they're tall).
 		
 		return damage;
 	}
