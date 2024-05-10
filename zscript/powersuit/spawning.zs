@@ -6,6 +6,7 @@ class hdpowersuitstorage
 	int armordurability;
 	int batteries[3];
 	int repairparts;
+	int armorplates;
 	
 	string leftarmtype, rightarmtype, leftextra, rightextra;
 	array<int> leftstatus, rightstatus;
@@ -28,6 +29,17 @@ class HDPowersuitSpawnHandler : staticeventhandler
 			e.replacement = "hdpowersuitspawnerpickup";
 		}
 	}
+
+	override void CheckReplacee(ReplacedEvent e)
+	{
+		switch (e.Replacement.GetClassName())
+		{
+			case 'hdpowersuitspawnerpickup':
+					e.Replacee = "hdmegasphere";
+				break;
+		}
+	}
+
 	
 	override void worldthingspawned(worldevent e)
 	{
@@ -63,6 +75,7 @@ class HDPowersuitSpawnHandler : staticeventhandler
 					suits[i].batteries[1] = suit.batteries[1];
 					suits[i].batteries[2] = suit.batteries[2];
 					suits[i].repairparts = suit.repairparts;
+					suits[i].armorplates = suit.armorplates;
 					
 					suits[i].leftarmtype = suit.torso.leftarm.droppeditemname;
 					suits[i].rightarmtype = suit.torso.rightarm.droppeditemname;
@@ -138,6 +151,7 @@ class HDPowersuitSpawnHandler : staticeventhandler
 						suit.batteries[1] = suits[i].batteries[1];
 						suit.batteries[2] = suits[i].batteries[2];
 						suit.repairparts = suits[i].repairparts;
+						suit.armorplates = suits[i].armorplates;
 						
 						suit.torso.leftarm.destroy();
 						suit.torso.rightarm.destroy();
