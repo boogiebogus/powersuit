@@ -49,11 +49,11 @@ class HDPowersuitTorso : hdactor
 		if (suitcore.driver && suitcore.driver == players[consoleplayer].camera
 			&& !(players[consoleplayer].cheats & CF_CHASECAM))
 		{
-			a_setrenderstyle(1.0, STYLE_NONE);
+			bONLYVISIBLEINMIRRORS=true;
 		}
 		else
 		{
-			a_setrenderstyle(1.0, STYLE_NORMAL);
+			bONLYVISIBLEINMIRRORS=false;
 		}
 		
 		super.tick();
