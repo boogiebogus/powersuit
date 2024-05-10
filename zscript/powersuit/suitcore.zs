@@ -407,7 +407,7 @@ class HDPowersuit : hdactor
 			shutdownoverride=false;
 		}
 		
-		if (integrity < 1)
+		if (integrity < 1 && !bKILLED)
 		{
 			a_startsound("mech/destroyed", 0, CHANF_OVERLAP);
 			//integrity = -1;
