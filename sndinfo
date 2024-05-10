@@ -27,3 +27,20 @@ $volume weapons/jackripper/smg 0.7
 $limit weapons/jackripper/smg 0
 weapons/jackripper/shotgun	dsshotg
 $limit weapons/jackripper/shotgun 0
+
+//amongoose
+$random mech/integrityfix { mech/integrityfix1 mech/integrityfix2 mech/integrityfix3}
+
+mech/integrityfix1 sounds/mongoose_integrityfix1.ogg
+mech/integrityfix2 sounds/mongoose_integrityfix2.ogg
+mech/integrityfix3 sounds/mongoose_integrityfix3.ogg
+
+//minceraft
+$random mech/armorfix { mech/armorfix1 mech/armorfix2 mech/armorfix3 mech/armorfix4 mech/armorfix5 mech/armorfix6 }
+
+mech/armorfix1 sounds/mongoose_armorfix1.ogg
+mech/armorfix2 sounds/mongoose_armorfix2.ogg
+mech/armorfix3 sounds/mongoose_armorfix3.ogg
+mech/armorfix4 sounds/mongoose_armorfix4.ogg
+mech/armorfix5 sounds/mongoose_armorfix5.ogg
+mech/armorfix6 sounds/mongoose_armorfix6.ogg
