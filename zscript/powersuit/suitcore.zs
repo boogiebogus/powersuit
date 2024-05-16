@@ -88,7 +88,7 @@ class HDPowersuit : hdactor
 		hdpowersuit.acceleration 0.2;
 		hdpowersuit.maxfuel 140;
 		hdpowersuit.maxheat 800;
-		hdpowersuit.maxarmor 100;
+		hdpowersuit.maxarmor 200;
 		hdpowersuit.maxshields 200;
 		hdpowersuit.maxintegrity 100;
 		hdpowersuit.partialchargemax 1575;
@@ -103,10 +103,18 @@ class HDPowersuit : hdactor
 		torso.leftarm = hdpowersuitarm(spawn("hdpowersuitblankarm", pos));
 		torso.rightarm = hdpowersuitarm(spawn("hdpowersuitblankarm", pos));
 		
+		torso.leftshoulder = hdpowersuitshoulder(spawn("hdpowersuitblankshoulder", pos));
+		torso.rightshoulder = hdpowersuitshoulder(spawn("hdpowersuitblankshoulder", pos));
+		
 		torso.leftarm.suitcore = self;
 		torso.rightarm.suitcore = self;
 		torso.leftarm.isleft = true;
 		torso.rightarm.isleft = false;
+		
+		torso.leftshoulder.suitcore = self;
+		torso.rightshoulder.suitcore = self;
+		torso.leftshoulder.isleft = true;
+		torso.rightshoulder.isleft = false;
 		
 		torso.leftleg = hdpowersuitleg(spawn("hdpowersuitleg", pos));
 		torso.rightleg = hdpowersuitleg(spawn("hdpowersuitleg", pos));
@@ -202,6 +210,7 @@ class HDPowersuit : hdactor
 		super.tick();
 		
 		if(integrity < 0)integrity=0;
+		if(suitarmor.durability < 0)suitarmor.durability=0;
 		
 		if (driver)
 		{
@@ -648,7 +657,7 @@ class HDPowersuit : hdactor
 			}
 		}
 		
-		if (justpressed(BT_USER1))
+		if (!(driver.player.cmd.buttons & BT_USER3) && justpressed(BT_USER1))
 		{
 			targetangle = driver.angle;
 		}
@@ -726,6 +735,7 @@ class HDPowersuit : hdactor
 		{
 			suitheat += damage * 3;
 			if(!random(0,4))integrity -= random(3,10);
+			return 0;
 		}
 		
 		if (mod == "piercing" && driver)
@@ -744,14 +754,21 @@ class HDPowersuit : hdactor
 		if (mod == "hot")
 		{
 			if(!random(0,32))integrity--;
+			return 0;
 		}
 		
-		if (mod == "balefire")suitheat += damage * 6;
+		if (mod == "balefire"){
+			suitheat += damage * 6;
+			return 0;
+		}
 		
 		// [Renegade4339] I may do a direct check for rockets since HEAT (cyberdemon) rockets barely do anything
 		// to the mech unless if someone is aiming to the head to kill the driver (if they're tall).
+		//screw it
+		if(suitarmor.durability > 0) suitarmor.durability -= damage/200;
+		else integrity -= damage/100;
 		
-		return damage;
+		return 0;
 	}
 	
 	protected void checkheat()
@@ -851,6 +868,8 @@ class HDPowersuit : hdactor
 			driver.a_setinventory("hdpowersuitinterface", 1);
 			interface = hdpowersuitinterface(driver.findinventory("hdpowersuitinterface"));
 			interface.suitcore = self;
+			master = driver;
+			friendplayer = driver.friendplayer;
 			
 			torso.aimpoint = spawn("hdpowersuitaimpoint", self.pos);
 			
@@ -870,6 +889,22 @@ class HDPowersuit : hdactor
 				torso.rightarm.armpoint.accuracy = driver.playernumber();
 			}
 			
+			if (!(torso.leftshoulder is "hdpowersuitblankshoulder"))
+			{
+				torso.leftshoulder.shoulderpoint = hdpowersuitshoulderaimpoint(spawn("hdpowersuitshoulderaimpoint", self.pos));
+				torso.leftshoulder.shoulderpoint.isarm = true;
+				torso.leftshoulder.shoulderpoint.isleft = true;
+				torso.leftshoulder.shoulderpoint.accuracy = driver.playernumber();
+			}
+			
+			if (!(torso.rightshoulder is "hdpowersuitblankshoulder"))
+			{
+				torso.rightshoulder.shoulderpoint = hdpowersuitshoulderaimpoint(spawn("hdpowersuitshoulderaimpoint", self.pos));
+				torso.rightshoulder.shoulderpoint.isarm = true;
+				torso.rightshoulder.shoulderpoint.isleft = false;
+				torso.rightshoulder.shoulderpoint.accuracy = driver.playernumber();
+			}
+			
 			viewz = driver.player.viewz;
 			torso.translation = driver.translation;
 			torso.leftleg.translation = driver.translation;
@@ -878,7 +913,7 @@ class HDPowersuit : hdactor
 			if (checkusable())
 			{
 				a_startsound("mech/powerup", 0);
-				a_startsound("mech/getin", 0);
+				driver.a_startsound("mech/getin", 0, CHANF_LOCAL);
 			}
 	}
 	
@@ -886,6 +921,8 @@ class HDPowersuit : hdactor
 	{
 			driver.a_setinventory("hdpowersuitinterface", 0);
 			driver.bthruactors = false;
+			master = null;
+			friendplayer = 0;
 			driver.player.cheats &=~ CF_FROZEN;
 			driver.warp(self, 0 * -sin(angle), 0 * cos(angle),
 				0, 0, WARPF_USECALLERANGLE | WARPF_INTERPOLATE
@@ -905,6 +942,16 @@ class HDPowersuit : hdactor
 			if (torso.rightarm.armpoint)
 			{
 				torso.rightarm.armpoint.destroy();
+			}
+			
+			if (torso.leftshoulder.shoulderpoint)
+			{
+				torso.leftshoulder.shoulderpoint.destroy();
+			}
+			
+			if (torso.rightshoulder.shoulderpoint)
+			{
+				torso.rightshoulder.shoulderpoint.destroy();
 			}
 			
 			driver.vel += (cos(self.angle) * 5, sin(self.angle) * 5, 0);

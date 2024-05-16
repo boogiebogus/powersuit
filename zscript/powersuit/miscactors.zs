@@ -3,6 +3,7 @@ const ENC_POWERSUITPART = 200;
 class HDPowersuitTorso : hdactor
 {
 	hdpowersuitarm leftarm, rightarm;
+	hdpowersuitshoulder leftshoulder, rightshoulder;
 	hdpowersuitleg leftleg, rightleg;
 	playerpawn driver;
 	actor aimpoint;
@@ -36,14 +37,17 @@ class HDPowersuitTorso : hdactor
 			aimpoint.setorigin(tracedata.hitlocation, true);
 			
 			if (leftarm)
-			{
 				leftarm.target = aimpoint;
-			}
 			
 			if (rightarm)
-			{
 				rightarm.target = aimpoint;
-			}
+			
+			
+			if (leftshoulder)
+				leftshoulder.target = aimpoint;
+			
+			if (rightshoulder)
+				rightshoulder.target = aimpoint;
 		}
 		
 		if (suitcore.driver && suitcore.driver == players[consoleplayer].camera
