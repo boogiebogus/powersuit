@@ -67,6 +67,10 @@ class HDPowersuitHeatSink : hdpowersuitshoulder
 		{
 			heattaken -= randompick(0,0,0,0,1,2,1,3,4);
 		}
+		if((countinv("HDFireEnder")>0)&&heattaken>0){
+		heattaken-=random(10,35);
+		A_TakeInventory("HDFireEnder",1);
+		}
 		int heatrate=random(1,8);
 		if(suitcore&&suitcore.suitheat>0)heattaken+=heatrate;
 		if(suitcore&&(heattaken>=suitcore.maxheat)){
