@@ -42,8 +42,25 @@ class HDPowersuitArm : hdactor
 	override string getobituary(actor victim,actor inflictor,name mod,bool playerattack){
 		String msg;
 		if(master){
-		msg="%o fell for "..master.gettag().."'s war crimes.";
-		//players[friendplayer - 1].fragcount++; --turns out this is a can of worms to deal with 
+			msg="%o fell for "..master.gettag().."'s war crimes.";
+			if (!hdlivescounter.livesmode() && !hd_flagpole){
+				/*if(teamplay){
+					let masterteam = players[friendplayer - 1].getteam();
+					for(int i = 0; i  < MAXPLAYERS; i++){
+					if((players[i].getteam()) == masterteam)players[i].fragcount++;
+					if(((players[i].fragcount) >= fraglimit) && (fraglimit > 0)){
+						console.printf("Fraglimit hit.");
+						Level.ExitLevel(0, false);
+					}
+				}
+			}else{*/
+				players[friendplayer - 1].fragcount++;
+				if(((players[friendplayer - 1].fragcount) >= fraglimit) && (fraglimit > 0)){
+					console.printf("Fraglimit hit.");
+					Level.ExitLevel(0, false);
+					}
+				//}
+			}
 		}
 		if(msg)return msg;
 		return "%o fell for war crimes.";

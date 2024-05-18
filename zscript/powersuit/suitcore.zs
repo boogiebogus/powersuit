@@ -96,6 +96,33 @@ class HDPowersuit : hdactor
 		hdpowersuit.maxplates 20;
 		hdpowersuit.turnspeed 2.0;
 	}
+
+	override string getobituary(actor victim,actor inflictor,name mod,bool playerattack){
+		String msg;
+		if(master){
+			msg="%o fell for "..master.gettag().."'s war crimes.";
+			if (!hdlivescounter.livesmode() && !hd_flagpole){
+				/*if(teamplay){
+					let masterteam = players[friendplayer - 1].getteam();
+					for(int i = 0; i  < MAXPLAYERS; i++){
+					if((players[i].getteam()) == masterteam)players[i].fragcount++;
+					if(((players[i].fragcount) >= fraglimit) && (fraglimit > 0)){
+						console.printf("Fraglimit hit.");
+						Level.ExitLevel(0, false);
+					}
+				}
+			}else{*/
+				players[friendplayer - 1].fragcount++;
+				if(((players[friendplayer - 1].fragcount) >= fraglimit) && (fraglimit > 0)){
+					console.printf("Fraglimit hit.");
+					Level.ExitLevel(0, false);
+					}
+				//}
+			}
+		}
+		if(msg)return msg;
+		return "%o fell for war crimes.";
+	}
 	
 	override void beginplay()
 	{
@@ -208,6 +235,15 @@ class HDPowersuit : hdactor
 		}
 		
 		super.tick();
+		
+		hdfire hdfirecheck;
+		thinkeriterator fit=ThinkerIterator.create("HDFire");
+		while(hdfirecheck=hdfire(fit.next(true))){
+			if((hdfirecheck.stamina > 0) && hdfirecheck.target == self)
+				hdfirecheck.stamina-=random(1,3);
+		}
+		
+		if((suitheat > maxheat*2) && !random(0,64))integrity--;
 		
 		if(integrity < 0)integrity=0;
 		if(suitarmor.durability < 0)suitarmor.durability=0;
@@ -753,7 +789,7 @@ class HDPowersuit : hdactor
 		
 		if (mod == "hot")
 		{
-			if(!random(0,32))integrity--;
+			//if(!random(0,32))integrity--;
 			return 0;
 		}
 		

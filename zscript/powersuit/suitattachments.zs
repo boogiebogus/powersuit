@@ -69,7 +69,27 @@ class HDPowersuitShoulder : hdactor
 	
 	override string getobituary(actor victim,actor inflictor,name mod,bool playerattack){
 		String msg;
-		if(master)msg="%o fell for "..master.gettag().."'s war crimes.";
+		if(master){
+			msg="%o fell for "..master.gettag().."'s war crimes.";
+			if (!hdlivescounter.livesmode() && !hd_flagpole){
+				/*if(teamplay){
+					let masterteam = players[friendplayer - 1].getteam();
+					for(int i = 0; i  < MAXPLAYERS; i++){
+					if((players[i].getteam()) == masterteam)players[i].fragcount++;
+					if(((players[i].fragcount) >= fraglimit) && (fraglimit > 0)){
+						console.printf("Fraglimit hit.");
+						Level.ExitLevel(0, false);
+					}
+				}
+			}else{*/
+				players[friendplayer - 1].fragcount++;
+				if(((players[friendplayer - 1].fragcount) >= fraglimit) && (fraglimit > 0)){
+					console.printf("Fraglimit hit.");
+					Level.ExitLevel(0, false);
+					}
+				//}
+			}
+		}
 		if(msg)return msg;
 		return "%o fell for war crimes.";
 	}
@@ -487,7 +507,7 @@ class HDPowersuitShoulder : hdactor
 	{				
 		if (suitcore)
 		{
-			warp(suitcore, 12, (isleft ? -16 : 16), suitcore.haslegs ? 42 : 22, angle,  
+			warp(suitcore, 6, (isleft ? -16 : 16), suitcore.haslegs ? 48 : 28, angle,  
 					WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION | WARPF_ABSOLUTEANGLE);			
 			vel = (0,0,0);
 			master = suitcore.master;
