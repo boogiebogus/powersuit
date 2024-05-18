@@ -240,10 +240,10 @@ class HDPowersuit : hdactor
 		thinkeriterator fit=ThinkerIterator.create("HDFire");
 		while(hdfirecheck=hdfire(fit.next(true))){
 			if((hdfirecheck.stamina > 0) && hdfirecheck.target == self)
-				hdfirecheck.stamina-=random(1,3);
+				hdfirecheck.stamina-=random(3,15);
 		}
 		
-		if((suitheat > maxheat*2) && !random(0,64))integrity--;
+		if((suitheat > maxheat*2) && !random(0,384))integrity--;
 		
 		if(integrity < 0)integrity=0;
 		if(suitarmor.durability < 0)suitarmor.durability=0;
@@ -457,11 +457,9 @@ class HDPowersuit : hdactor
 			a_startsound("mech/destroyed", 0, CHANF_OVERLAP);
 			//integrity = -1;
 			bKILLED = true;
-			health = -1;
 		}
 		else if (integrity > 0 && bKILLED)
 		{
-			health = 100;
 			bKILLED = false;
 		}
 		

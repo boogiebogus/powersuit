@@ -1389,7 +1389,8 @@ class HDPowersuitEditor : hdweapon
 										hdpickup integrityparts=hdpickup(findinventory("mogintegritypart"));
 										if(integrityparts.amount>0){
 											int intparts=countinv("MogIntegrityPart");
-											invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 9), invoker.suitcore.maxintegrity);
+											if (intparts < 5)invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(1, 4), invoker.suitcore.maxintegrity);
+											else invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 9), invoker.suitcore.maxintegrity);
 											A_TakeInventory("MogIntegrityPart",random(2, 5));
 											}
 									}
