@@ -2,10 +2,11 @@ class HDPowersuitEditor : hdweapon
 {
 	hdpowersuit suitcore;
 	string statusmessage, actionmessage;
-	int selected, selectedarm;
+	int selected, selectedarm, selectedshoulder;
 	int actionprogress, actiontime;
 	array<string> options;
 	hdpowersuitarmpickup armitem;
+	hdpowersuitshoulderpickup attachmentitem;
 		
 	default
 	{
@@ -18,6 +19,8 @@ class HDPowersuitEditor : hdweapon
 		selected = 0;
 		options.push("Left Arm");
 		options.push("Right Arm");
+		options.push("Left Shoulder");
+		options.push("Right Shoulder");
 		options.push("Battery");
 		options.push("Armor");
 		options.push("Integrity");
@@ -31,6 +34,8 @@ class HDPowersuitEditor : hdweapon
 	{
 		SUIT_LEFTARM,
 		SUIT_RIGHTARM,
+		SUIT_LEFTSHOULDER,
+		SUIT_RIGHTSHOULDER,
 		SUIT_BATTERY,
 		SUIT_ARMOR,
 		SUIT_INTEGRITY,
@@ -85,6 +90,39 @@ class HDPowersuitEditor : hdweapon
 							WEPHELP_UNLOAD.."  Unload weapon\n"..
 							(currentarm.altammotype != "" ? WEPHELP_ALTRELOAD.." + "..WEPHELP_UNLOAD.."  Alt. unload weapon\n" : "")..
 							WEPHELP_FIREMODE.." + "..WEPHELP_UNLOAD.."  Dismount weapon";
+					}
+				}
+				break;
+				
+			case SUIT_LEFTSHOULDER:
+				isleft = true;
+			case SUIT_RIGHTSHOULDER:
+				hdpowersuitshoulder currentshoulder;
+				if (isleft)
+				{
+					currentshoulder = suitcore.torso.leftshoulder;
+				}
+				else
+				{
+					currentshoulder = suitcore.torso.rightshoulder;
+				}
+				
+				if (currentshoulder)
+				{
+					if (currentshoulder is "hdpowersuitblankshoulder")
+					{
+						returnstring = returnstring..WEPHELP_FIREMODE.." + "..WEPHELP_FIRE.."  Select next attachment\n"..
+							WEPHELP_FIREMODE.." + "..WEPHELP_ALTFIRE.. "  Select previous attachment\n"..
+							WEPHELP_FIREMODE.." + "..WEPHELP_RELOAD.."  Mount selected attachment";
+					}
+					else
+					{
+						returnstring = returnstring..(!currentshoulder.bIsTool ? WEPHELP_RELOAD.."  Reload attachment\n" : "")..
+						//WEPHELP_RELOAD.."  Reload attachment\n"..
+							(((!currentshoulder.bIsTool)&&(currentshoulder.altammotype != "")) ? WEPHELP_ALTRELOAD.."  Alt. reload attachment\n" : "")..
+							(!currentshoulder.bIsTool ? WEPHELP_UNLOAD.."  Unload attachment\n" : "")..
+							(((!currentshoulder.bIsTool)&&(currentshoulder.altammotype != "")) ? WEPHELP_ALTRELOAD.." + "..WEPHELP_UNLOAD.."  Alt. unload attachment\n" : "")..
+							WEPHELP_FIREMODE.." + "..WEPHELP_UNLOAD.."  Dismount attachment";
 					}
 				}
 				break;
@@ -191,6 +229,37 @@ class HDPowersuitEditor : hdweapon
 					
 					break;
 				
+				case SUIT_LEFTSHOULDER:
+					isleftarm = true;
+				case SUIT_RIGHTSHOULDER:
+					hdpowersuitshoulder currentshoulder = isleftarm ? suitcore.torso.leftshoulder : suitcore.torso.rightshoulder;
+					
+					if (currentshoulder && !(currentshoulder is "hdpowersuitblankshoulder"))
+					{						
+						statusmessage = currentshoulder.getstatustext(playerpawn(owner));
+					}
+					else if (suitcore.hasarms)
+					{
+						statusmessage = "\cgThere's no attachment mounted here."..
+							"\n\cjAttachment to mount: \cd";
+						
+						if (attachmentitem)
+						{
+							statusmessage = statusmessage..attachmentitem.gettag();
+						}
+						else
+						{
+							statusmessage = statusmessage.."\cgnone";
+						}
+					}
+					else
+					{
+						statusmessage = "\cjThis suit has \cgno arms\cj.";
+					}
+					
+					break;
+				
+				
 				case SUIT_BATTERY:
 					int batt1 = int((suitcore.batteries[0] / 20.0) * 100);
 					int batt2 = int((suitcore.batteries[1] / 20.0) * 100);
@@ -253,8 +322,11 @@ class HDPowersuitEditor : hdweapon
 			(0, -96), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
 			
 		string letter;
-		
-		/*if (suitcore.integrity > (3 * suitcore.maxintegrity) / 4)
+		string leftsletter;
+		string rightsletter;
+		//hdpowersuitshoulder mogattachment = "hdpowersuitshoulder";
+		/*
+		if (suitcore.integrity > (3 * suitcore.maxintegrity) / 4)
 		{
 			letter = "A";
 		}
@@ -269,7 +341,58 @@ class HDPowersuitEditor : hdweapon
 		else
 		{
 			letter = "D";
-		}*/
+		}
+		*/
+		if (suitcore.integrity < (suitcore.maxintegrity / 4))
+		{
+			letter = "D";
+		}
+		else if (suitcore.integrity < (suitcore.maxintegrity / 2))
+		{
+			letter = "C";
+		}
+		else if (suitcore.integrity < ((3  * suitcore.maxintegrity) / 4))
+		{
+			letter = "B";
+		}
+		else
+		{
+			letter = "A";
+		}
+		
+		if (suitcore.torso.rightshoulder.health < (suitcore.torso.rightshoulder.SpawnHealth() / 4))
+		{
+			rightsletter = "D";
+		}
+		else if (suitcore.torso.rightshoulder.health < (suitcore.torso.rightshoulder.SpawnHealth() / 2))
+		{
+			rightsletter = "C";
+		}
+		else if (suitcore.torso.rightshoulder.health < ((3  * suitcore.torso.rightshoulder.SpawnHealth()) / 4))
+		{
+			rightsletter = "B";
+		}
+		else
+		{
+			rightsletter = "A";
+		}
+		
+		if (suitcore.torso.leftshoulder.health < (suitcore.torso.leftshoulder.SpawnHealth() / 4))
+		{
+			leftsletter = "D";
+		}
+		else if (suitcore.torso.leftshoulder.health < (suitcore.torso.leftshoulder.SpawnHealth() / 2))
+		{
+			leftsletter = "C";
+		}
+		else if (suitcore.torso.leftshoulder.health < ((3  * suitcore.torso.leftshoulder.SpawnHealth()) / 4))
+		{
+			leftsletter = "B";
+		}
+		else
+		{
+			leftsletter = "A";
+		}
 
         	let prevCPlayer = sb.CPlayer;
 		//This used to be an LZDoom compat hack, but no longer functions now.
@@ -277,29 +400,43 @@ class HDPowersuitEditor : hdweapon
 
 		if (suitcore.haslegs)
 		{	
-			sb.drawimage("PSUIA1", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+			sb.drawimage("PSUI"..letter.."1", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
 				scale: (1.8, 1.8));
 		}
 	
-		sb.drawimage("PSUIA2", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+		sb.drawimage("PSUI"..letter.."2", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
 			scale: (1.8, 1.8));
 		
 		if (suitcore.hasarms)
 		{
-			sb.drawimage("PSUIA3", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+			sb.drawimage("PSUI"..letter.."3", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
 				scale: (1.8, 1.8));
 		}
 		
 		if (suitcore.torso.rightarm && !(suitcore.torso.rightarm is "hdpowersuitblankarm"))
 		{
-			sb.drawimage("PSUIA4", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+			sb.drawimage("PSUI"..letter.."4", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
 				scale: (1.8, 1.8));
 		}
 		
 		if (suitcore.torso.leftarm && !(suitcore.torso.leftarm is "hdpowersuitblankarm"))
 		{
-			sb.drawimage("PSUIA5", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+			sb.drawimage("PSUI"..letter.."5", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
 				scale: (1.8, 1.8));
+		}
+		
+		if (suitcore.torso.rightshoulder && !(suitcore.torso.rightshoulder is "hdpowersuitblankshoulder"))
+		{
+			sb.drawimage("PSUI"..rightsletter.."7", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+				scale: (1.8, 1.8));
+			//console.printf("right shoulder health: "..suitcore.torso.rightshoulder.health);
+		}
+		
+		if (suitcore.torso.leftshoulder && !(suitcore.torso.leftshoulder is "hdpowersuitblankshoulder"))
+		{
+			sb.drawimage("PSUI"..leftsletter.."6", (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER | sb.DI_TRANSLATABLE,
+				scale: (1.8, 1.8));
+			//console.printf("left shoulder health: "..suitcore.torso.leftshoulder.health);
 		}
 		
         // restore previous CPlayer
@@ -725,6 +862,329 @@ class HDPowersuitEditor : hdweapon
 						}
 						break;
 						
+					case SUIT_LEFTSHOULDER:
+						isleftarm = true;
+					case SUIT_RIGHTSHOULDER:
+						hdpowersuitshoulder currentshoulder = isleftarm ? invoker.suitcore.torso.leftshoulder : invoker.suitcore.torso.rightshoulder;
+						if (currentshoulder)
+						{
+							class<actor> magtype = currentshoulder.ammotype;
+							bool ismagazine = (magtype is "hdmagammo");
+							array<hdpowersuitshoulderpickup> inventoryshoulderattachments;
+							
+							if (currentshoulder is "hdpowersuitblankshoulder")
+							{
+								inventory nextinventory = inv;
+								
+								while(nextinventory)
+								{
+									if (nextinventory is "hdpowersuitshoulderpickup")
+									{
+										inventoryshoulderattachments.push(hdpowersuitshoulderpickup(nextinventory));
+									}
+									
+									nextinventory = nextinventory.inv;
+								}
+							}
+							
+							if (invoker.selectedshoulder < inventoryshoulderattachments.size() && invoker.selectedshoulder >= 0)
+							{
+								invoker.attachmentitem = inventoryshoulderattachments[invoker.selectedshoulder];
+							}
+							else if (inventoryshoulderattachments.size() != 0)
+							{
+								invoker.selectedshoulder = invoker.valuechange(invoker.selectedshoulder, inventoryshoulderattachments.size(), true);
+								invoker.attachmentitem = inventoryshoulderattachments[invoker.selectedshoulder];
+							}
+							else
+							{
+								invoker.attachmentitem = null;
+							}
+								
+							if (player.cmd.buttons & BT_USER2)
+							{
+								if (invoker.justpressed(BT_ATTACK))
+								{
+									invoker.selectedshoulder = invoker.valuechange(invoker.selectedshoulder, inventoryshoulderattachments.size(), true);
+								}
+								else if (invoker.justpressed(BT_ALTATTACK))
+								{
+									invoker.selectedshoulder = invoker.valuechange(invoker.selectedshoulder, inventoryshoulderattachments.size(), false);
+								}
+								
+								if (player.cmd.buttons & BT_RELOAD)
+								{
+									if (currentshoulder is "hdpowersuitblankshoulder" &&
+										invoker.attachmentitem && invoker.suitcore.hasarms)
+									{
+										invoker.actiontime = 175;
+										invoker.actionmessage = "Attaching "..
+											invoker.attachmentitem.gettag();
+											
+										if (invoker.actionprogress >= invoker.actiontime)
+										{
+											hdpowersuitshoulder newattachment = hdpowersuitshoulder(spawn(invoker.attachmentitem.shouldertype, currentshoulder.pos));
+											
+											newattachment.isleft = currentshoulder.isleft;
+											newattachment.handlemountammo(invoker.attachmentitem, playerpawn(self));
+											newattachment.suitcore = invoker.suitcore;
+											
+											currentshoulder.destroy();
+											if (isleftarm)
+											{
+												invoker.suitcore.torso.leftshoulder = newattachment;
+											}
+											else
+											{
+												invoker.suitcore.torso.rightshoulder = newattachment;
+											}
+											
+											newattachment.a_startsound("misc/w_pkup", CHAN_WEAPON);
+											
+											//this has been moved to handlemountammo
+											//takeinventory(invoker.attachmentitem.getclassname(), 1);
+											invoker.resetaction();
+										}
+										else
+										{
+											invoker.actionprogress++;
+										}
+									}
+									else
+									{
+										if (invoker.justpressed(BT_RELOAD))
+										{
+											if (!invoker.suitcore.hasarms)
+											{
+												A_WeaponMessage("There's no arms to attach that on.",70);
+											}
+											else if (!(currentshoulder is "hdpowersuitblankshoulder"))
+											{
+												A_WeaponMessage("There's already an attachment mounted here.",70);
+											}
+											else if (!invoker.attachmentitem)
+											{
+												A_WeaponMessage("You don't have any attachments to mount.",70);
+											}
+										}
+										
+										invoker.actiontime = -1;
+									}
+								}
+								else if (player.cmd.buttons & BT_USER4)
+								{
+									if (!(currentshoulder is "hdpowersuitblankshoulder"))
+									{
+										if(currentshoulder.bisnotdetachable){
+											A_WeaponMessage("Unable to detach, "..currentshoulder.undetachablemessage,70);
+										}else{
+											invoker.actiontime = 175;
+											invoker.actionmessage = "Detaching "..
+												currentshoulder.gettag();
+										}
+											
+										if ((invoker.actionprogress >= invoker.actiontime) && !currentshoulder.bisnotdetachable)
+										{
+											array<int> wepstatdata;
+											wepstatdata.resize(32);
+											currentshoulder.spawndroppedshoulder(wepstatdata);
+											hdpowersuitshoulderpickup droppedshoulder = hdpowersuitshoulderpickup(spawn(currentshoulder.droppeditemname, invoker.suitcore.pos));
+											for (int i = 0; i < 32; i++)
+											{
+												droppedshoulder.weaponstatus[i] = wepstatdata[i];
+											}
+											
+											droppedshoulder.angle = invoker.suitcore.torso.angle;
+											droppedshoulder.a_changevelocity(3, 0, 0, CVF_RELATIVE);
+											
+											hdpowersuitshoulder blankshoulder = hdpowersuitshoulder(spawn("hdpowersuitblankshoulder", currentshoulder.pos));
+											blankshoulder.isleft = currentshoulder.isleft;
+											currentshoulder.destroy();
+											
+											if (isleftarm)
+											{
+												invoker.suitcore.torso.leftshoulder = blankshoulder;
+											}
+											else
+											{
+												invoker.suitcore.torso.rightshoulder = blankshoulder;
+											}
+											
+											blankshoulder.a_startsound("misc/w_pkup", CHAN_WEAPON);
+											
+											invoker.resetaction();
+										}
+										else
+										{
+											if (invoker.justpressed(BT_USER4))
+											{
+												if (currentshoulder is "hdpowersuitblankshoulder")
+												{
+													A_WeaponMessage("There's no attachment here.",70);
+												}
+											}
+											
+											invoker.actionprogress++;
+										}
+									}
+									else
+									{
+										invoker.actiontime = -1;
+									}
+								}
+								else
+								{
+									invoker.resetaction();
+								}
+							}
+							else if (!currentshoulder.bistool&&(player.cmd.buttons & BT_RELOAD || 
+								(player.cmd.buttons & BT_USER1 && !(player.cmd.buttons & BT_USER4))))
+							{		
+								bool usealtammo = false;
+								
+								if (player.cmd.buttons & BT_USER1 && currentshoulder.altammotype != "")
+								{
+									usealtammo = true;
+									
+									class<actor> altmagtype = currentshoulder.altammotype;
+									ismagazine = (altmagtype is "hdmagammo");
+								}
+								
+								hdmagammo magammo;
+								hdammo nonmagammo;
+								
+								if (ismagazine)
+								{
+									magammo = hdmagammo(findinventory((usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype)));
+								}
+								else
+								{
+									nonmagammo = hdammo(findinventory((usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype)));
+								}
+								
+								if (currentshoulder.checkload(usealtammo) && (magammo || nonmagammo))
+								{
+									invoker.actiontime = currentshoulder.getreloadtime(usealtammo, false);
+									invoker.actionmessage = (usealtammo ? "Alt. " : "").."Reloading "..
+										(isleftarm ? "left " : "right ").."shoulder";
+										
+									if (invoker.actionprogress >= invoker.actiontime)
+									{
+										if (ismagazine)
+										{
+											currentshoulder.loadmagazine(magammo.takemag(true), usealtammo);
+										}
+										else
+										{
+											currentshoulder.loadmagazine(1, usealtammo);
+											
+											takeinventory(nonmagammo.getclassname(), 1);
+										}
+										
+										invoker.suitcore.a_startsound(currentshoulder.getloadsound(false, usealtammo), CHAN_WEAPON);
+									
+										invoker.resetaction();
+									}
+									else
+									{
+										invoker.actionprogress++;
+									}
+								}
+								else
+								{
+									if (invoker.justpressed(BT_RELOAD) || 
+										(invoker.justpressed(BT_USER1) && !invoker.justpressed(BT_USER4)))
+									{
+										if (currentshoulder is "hdpowersuitblankshoulder")
+										{
+											A_WeaponMessage("There's no attachment here.",70);
+										}
+										else if (!currentshoulder.checkload(usealtammo))
+										{
+											A_WeaponMessage("There's no room for any more "..
+												(usealtammo ? "alt. " : "").."ammo.",70);
+										}
+										else if (!magammo && !nonmagammo)
+										{
+											if (usealtammo)
+											{
+												A_WeaponMessage("You don't have any alternate ammo.",70);
+											}
+											else
+											{
+												A_WeaponMessage("You don't have any ammo.",70);
+											}
+										}
+									}
+									
+									invoker.actiontime = -1;
+								}
+							}
+							else if (!currentshoulder.bistool&&(player.cmd.buttons & BT_USER4))
+							{
+								bool usealtammo = false;
+								
+								if (player.cmd.buttons & BT_USER1 && currentshoulder.altammotype != "")
+								{
+									usealtammo = true;
+									
+									class<actor> altmagtype = currentshoulder.altammotype;
+									ismagazine = (altmagtype is "hdmagammo");
+								}
+								
+								if (currentshoulder.checkunload(usealtammo))
+								{
+									invoker.actiontime = currentshoulder.getreloadtime(usealtammo, true);
+									invoker.actionmessage = (usealtammo ? "Alt. " : "").."Unloading "..
+										(isleftarm ? "left " : "right ").. "shoulder";
+										
+									if (invoker.actionprogress >= invoker.actiontime)
+									{
+										if (ismagazine)
+										{
+											hdmagammo.givemag(self, (usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype), 
+												currentshoulder.handleunload(usealtammo));
+										}
+										else
+										{
+											giveinventory((usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype),
+												currentshoulder.handleunload(usealtammo));
+										}
+										
+										invoker.suitcore.a_startsound(currentshoulder.getloadsound(true, usealtammo), CHAN_WEAPON);
+									
+										invoker.resetaction();
+									}
+									else
+									{
+										invoker.actionprogress++;
+									}
+								}
+								else
+								{
+									if (invoker.justpressed(BT_USER4))
+									{
+										if (currentshoulder is "hdpowersuitblankshoulder")
+										{
+											A_WeaponMessage("There's no attachment here.",70);
+										}
+										else if (!currentshoulder.checkunload(usealtammo))
+										{
+											A_WeaponMessage("There's no "..
+												(usealtammo ? "alt. " : "").."ammo left in this.",70);
+										}
+									}
+									
+									invoker.actiontime = -1;
+								}
+							}
+							else
+							{
+								invoker.resetaction();
+							}
+						}
+						break;
+						
 					case SUIT_BATTERY:
 						int battnum = 0;
 						if (player.cmd.buttons & BT_USER2)
@@ -929,7 +1389,8 @@ class HDPowersuitEditor : hdweapon
 										hdpickup integrityparts=hdpickup(findinventory("mogintegritypart"));
 										if(integrityparts.amount>0){
 											int intparts=countinv("MogIntegrityPart");
-											invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 9), invoker.suitcore.maxintegrity);
+											if (intparts < 5)invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(1, 4), invoker.suitcore.maxintegrity);
+											else invoker.suitcore.integrity = min(invoker.suitcore.integrity + random(5, 9), invoker.suitcore.maxintegrity);
 											A_TakeInventory("MogIntegrityPart",random(2, 5));
 											}
 									}

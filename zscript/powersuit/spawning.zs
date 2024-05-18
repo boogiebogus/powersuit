@@ -8,15 +8,16 @@ class hdpowersuitstorage
 	int repairparts;
 	int armorplates;
 	
-	string leftarmtype, rightarmtype, leftextra, rightextra;
-	array<int> leftstatus, rightstatus;
+	string leftarmtype, rightarmtype, leftshouldertype, rightshouldertype, leftextra, rightextra, leftsextra, rightsextra;
+	array<int> leftstatus, rightstatus, leftsstatus, rightsstatus;
 }
 
 class HDPowersuitSpawnHandler : staticeventhandler
 {
 	array<hdpowersuitstorage> suits;
 	array<string> weapontypes;
-	
+	array<string> attachmenttypes;
+
 	override void checkreplacement(replaceevent e)
 	{
 		if (!e.replacement)
@@ -50,6 +51,12 @@ class HDPowersuitSpawnHandler : staticeventhandler
 				
 			hdpowersuitarmpickup(e.thing.spawn("hdpowersuitvulcarmpickup", 
 				e.thing.pos + (frandom(-16, 16), frandom(-16, 16), 0))).initializewepstats();
+				
+			hdpowersuitshoulderpickup(e.thing.spawn(attachmenttypes[random(0, attachmenttypes.size() - 1)], 
+				e.thing.pos + (frandom(-16, 16), frandom(-16, 16), 0))).initializewepstats();
+				
+			hdpowersuitshoulderpickup(e.thing.spawn("hdpowersuitheatsinkpickup", 
+				e.thing.pos + (frandom(-16, 16), frandom(-16, 16), 0))).initializewepstats();
 		}
 	}
 	
@@ -82,6 +89,16 @@ class HDPowersuitSpawnHandler : staticeventhandler
 					suits[i].leftextra = suit.torso.leftarm.getextradata();
 					suits[i].rightextra = suit.torso.rightarm.getextradata();
 					
+					suits[i].leftshouldertype = suit.torso.leftshoulder.droppeditemname;
+					suits[i].rightshouldertype = suit.torso.rightshoulder.droppeditemname;
+					suits[i].leftsextra = suit.torso.leftshoulder.getextradata();
+					suits[i].rightsextra = suit.torso.rightshoulder.getextradata();
+					
+					suits[i].leftsstatus.resize(HDWEP_STATUSSLOTS);
+					suits[i].rightsstatus.resize(HDWEP_STATUSSLOTS);
+					suit.torso.leftshoulder.spawndroppedshoulder(suits[i].leftsstatus);
+					suit.torso.rightshoulder.spawndroppedshoulder(suits[i].rightsstatus);
+					
 					suits[i].leftstatus.resize(HDWEP_STATUSSLOTS);
 					suits[i].rightstatus.resize(HDWEP_STATUSSLOTS);
 					suit.torso.leftarm.spawndroppedarm(suits[i].leftstatus);
@@ -100,6 +117,13 @@ class HDPowersuitSpawnHandler : staticeventhandler
 				|| allactorclasses[i].getclassname() == "hdpowersuitblankarmpickup"))
 			{
 				weapontypes.push(allactorclasses[i].getclassname());
+			}
+			
+			if (allactorclasses[i] is "hdpowersuitshoulderpickup"
+				&& !(allactorclasses[i].getclassname() == "hdpowersuitshoulderpickup"
+				|| allactorclasses[i].getclassname() == "hdpowersuitblankshoulderpickup"))
+			{
+				attachmenttypes.push(allactorclasses[i].getclassname());
 			}
 		}
 		
@@ -129,10 +153,16 @@ class HDPowersuitSpawnHandler : staticeventhandler
 						leftarmpickup = hdpowersuitarmpickup(suit.spawn(suits[i].leftarmtype, suit.pos));
 						rightarmpickup = hdpowersuitarmpickup(suit.spawn(suits[i].rightarmtype, suit.pos));
 						
+						hdpowersuitshoulderpickup leftattachmentpickup, rightattachmentpickup;
+						leftattachmentpickup = hdpowersuitshoulderpickup(suit.spawn(suits[i].leftshouldertype, suit.pos));
+						rightattachmentpickup = hdpowersuitshoulderpickup(suit.spawn(suits[i].rightshouldertype, suit.pos));
+						
 						for (int j = 0; j < HDWEP_STATUSSLOTS; j++)
 						{
 							leftarmpickup.weaponstatus[j] = suits[i].leftstatus[j];
 							rightarmpickup.weaponstatus[j] = suits[i].rightstatus[j];
+							leftattachmentpickup.weaponstatus[j] = suits[i].leftsstatus[j];
+							rightattachmentpickup.weaponstatus[j] = suits[i].rightsstatus[j];
 						}
 						
 						hdpowersuitarm newleftarm = hdpowersuitarm(suit.spawn(leftarmpickup.armtype, suit.torso.leftarm.pos));
@@ -144,6 +174,16 @@ class HDPowersuitSpawnHandler : staticeventhandler
 						newrightarm.handlemountammo(rightarmpickup, playerpawn(p.mo), false, true, suits[i].rightextra);
 						newleftarm.suitcore = suit;
 						newrightarm.suitcore = suit;
+						
+						hdpowersuitshoulder newleftattachment = hdpowersuitshoulder(suit.spawn(leftattachmentpickup.shouldertype, suit.torso.leftshoulder.pos));
+						hdpowersuitshoulder newrightattachment = hdpowersuitshoulder(suit.spawn(rightattachmentpickup.shouldertype, suit.torso.rightshoulder.pos));
+													
+						newleftattachment.isleft = true;
+						newrightattachment.isleft = false;
+						newleftattachment.handlemountammo(leftattachmentpickup, playerpawn(p.mo), false, true, suits[i].leftsextra);
+						newrightattachment.handlemountammo(rightattachmentpickup, playerpawn(p.mo), false, true, suits[i].rightsextra);
+						newleftattachment.suitcore = suit;
+						newrightattachment.suitcore = suit;
 						
 						suit.integrity = suits[i].integrity;
 						suit.suitarmor.durability = suits[i].armordurability;
@@ -157,6 +197,11 @@ class HDPowersuitSpawnHandler : staticeventhandler
 						suit.torso.rightarm.destroy();
 						suit.torso.leftarm = newleftarm;
 						suit.torso.rightarm = newrightarm;
+						
+						suit.torso.leftshoulder.destroy();
+						suit.torso.rightshoulder.destroy();
+						suit.torso.leftshoulder = newleftattachment;
+						suit.torso.rightshoulder = newrightattachment;
 						
 						if (!(suit.torso.leftarm is "hdpowersuitblankarm"))
 						{
@@ -174,6 +219,22 @@ class HDPowersuitSpawnHandler : staticeventhandler
 							suit.torso.rightarm.armpoint.accuracy = i;
 						}
 						
+						if (!(suit.torso.leftshoulder is "hdpowersuitblankshoulder"))
+						{
+							suit.torso.leftshoulder.shoulderpoint = hdpowersuitshoulderaimpoint(suit.spawn("hdpowersuitshoulderaimpoint", suit.pos));
+							suit.torso.leftshoulder.shoulderpoint.isarm = true;
+							suit.torso.leftshoulder.shoulderpoint.isleft = true;
+							suit.torso.leftshoulder.shoulderpoint.accuracy = i;
+						}
+						
+						if (!(suit.torso.rightshoulder is "hdpowersuitblankshoulder"))
+						{
+							suit.torso.rightshoulder.shoulderpoint = hdpowersuitshoulderaimpoint(suit.spawn("hdpowersuitshoulderaimpoint", suit.pos));
+							suit.torso.rightshoulder.shoulderpoint.isarm = true;
+							suit.torso.rightshoulder.shoulderpoint.isleft = false;
+							suit.torso.rightshoulder.shoulderpoint.accuracy = i;
+						}
+						
 						suit.viewz = suit.driver.player.viewz;
 						
 						suit.torso.translation = suit.driver.translation;
@@ -182,6 +243,8 @@ class HDPowersuitSpawnHandler : staticeventhandler
 						
 						leftarmpickup.destroy();
 						rightarmpickup.destroy();
+						leftattachmentpickup.destroy();
+						rightattachmentpickup.destroy();
 					}
 				}
 			}

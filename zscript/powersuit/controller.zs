@@ -17,8 +17,12 @@ class HDPowersuitInterface : nullweapon
 	{
 		return WEPHELP_FIRE.."  Fire left gun\n"..
 			WEPHELP_ALTFIRE.."  Fire right gun\n"..
-			WEPHELP_FIREMODE.." + "..WEPHELP_FIRE.."  Change firemode (left)\n"..
-			WEPHELP_FIREMODE.." + "..WEPHELP_ALTFIRE.."  Change firemode (right)\n"..
+			WEPHELP_FIREMODE.." + "..WEPHELP_FIRE.."  Change gun firemode (left)\n"..
+			WEPHELP_FIREMODE.." + "..WEPHELP_ALTFIRE.."  Change gun firemode (right)\n"..
+			WEPHELP_USER3.." + "..WEPHELP_FIRE.."  Fire left shoulder attachment\n"..
+			WEPHELP_USER3.." + "..WEPHELP_ALTFIRE.."  Fire right shoulder attachment\n"..
+			WEPHELP_FIREMODE.." + "..WEPHELP_RELOAD.."  Change shoulder attachment mode (left)\n"..
+			WEPHELP_FIREMODE.." + "..WEPHELP_UNLOAD.."  Change shoulder attachment mode (right)\n"..
 			WEPHELP_ZOOM.."  Zoom in\n"..
 			WEPHELP_BTCOL.."Sprint"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Stomp\n"..
 			WEPHELP_BTCOL.."Crouch"..WEPHELP_RGCOL.." + "..WEPHELP_USE.."  Get out\n"..
@@ -28,31 +32,23 @@ class HDPowersuitInterface : nullweapon
 	
 	override void doeffect()
 	{
-		if (!suitcore)
-		{
-			//console.printf("%f", owner.pos.x);
+		if (!suitcore){
+			owner.player.cheats &=~ CF_FROZEN;
+			destroy();
 			return;
 		}
 		
 		if (suitcore.checkusable())
-		{
 			valid = true;
-		}
 		else
-		{
 			valid = false;
-		}
 		
 		//i could shorten this, but hey - just in case!
 		if (suitcore.driver.player.cmd.buttons & BT_CROUCH
 			|| suitcore.driver.player.crouching < 0)
-		{
 			crouched = true;
-		}
 		else
-		{
 			crouched = false;
-		}
 		
 		suitcore.driver.player.cmd.buttons &=~ BT_CROUCH;
 		
@@ -62,9 +58,7 @@ class HDPowersuitInterface : nullweapon
 	override void drawhudstuff(hdstatusbar sb, hdweapon hdw, hdplayerpawn hpl)
 	{
 		if (!suitcore)
-		{
 			return;
-		}
 		
 		if (valid)
 		{
@@ -79,21 +73,15 @@ class HDPowersuitInterface : nullweapon
 			
 			//heat
 			if (suitcore.suitheat < suitcore.maxheat)
-			{
 				sb.drawrect(-32, -12, -4, -32 
 					+ max(min(float(suitcore.suitheat / float(suitcore.maxheat))* 32, 32), 0));
-			}
 			else
-			{
 				sb.fill(color(255, 255, 255, 0), -32, -12, -4, max(float((suitcore.suitheat - suitcore.maxheat) / float(suitcore.maxheat))* -32, -32), 
 					sb.DI_SCREEN_CENTER_BOTTOM);
-			}
 			
 			if (suitcore.suitheat > suitcore.maxheat * 2)
-			{
 				sb.fill(color(255, 255, 0, 0), -32, -12, -4, max(float((suitcore.suitheat - (suitcore.maxheat * 2)) / float(suitcore.maxheat))* -32, -32), 
 					sb.DI_SCREEN_CENTER_BOTTOM);
-			}
 			
 			sb.drawrect(-32, -10, -1, 5);
 			sb.drawrect(-33, -8, -1, 1);
@@ -101,21 +89,23 @@ class HDPowersuitInterface : nullweapon
 			
 			//left arm
 			if (suitcore.torso.leftarm && !(suitcore.torso.leftarm is "hdpowersuitblankarm"))
-			{
 				suitcore.torso.leftarm.drawhudstuff(sb, hdw, hpl);
-			}
 			
 			//right arm
 			if (suitcore.torso.rightarm && !(suitcore.torso.rightarm is "hdpowersuitblankarm"))
-			{
 				suitcore.torso.rightarm.drawhudstuff(sb, hdw, hpl);
-			}
+			
+			//left shoulder
+			if (suitcore.torso.leftshoulder && !(suitcore.torso.leftshoulder is "hdpowersuitblankshoulder"))
+				suitcore.torso.leftshoulder.drawhudstuff(sb, hdw, hpl);
+			
+			//right shoulder
+			if (suitcore.torso.rightshoulder && !(suitcore.torso.rightshoulder is "hdpowersuitblankshoulder"))
+				suitcore.torso.rightshoulder.drawhudstuff(sb, hdw, hpl);
 			
 			//armor
 			if (suitcore.suitarmor)
-			{
 				sb.drawrect(24, -12, 4, float(suitcore.suitarmor.durability / float(suitcore.maxarmor)) * -32);
-			}
 			
 			sb.drawrect(24, -9, 1, 4);
 			sb.drawrect(25, -10, 1, 1);
@@ -124,9 +114,7 @@ class HDPowersuitInterface : nullweapon
 			
 			//shields
 			if (suitcore.suitshield)
-			{
 				sb.drawrect(32, -12, 4, max(float(suitcore.suitshield.amount / float(suitcore.maxshields)), 0) * -32);
-			}
 			
 			sb.drawrect(33, -10, 2, 1);
 			sb.drawrect(32, -9, 1, 1);
@@ -205,19 +193,14 @@ class HDPowersuitInterface : nullweapon
 			sb.fill(color(255, 0, 0, 0), 0, 0, 1920, 1080);
 			
 			if (suitcore.integrity <= 0)
-			{
 				sb.drawstring(sb.psmallfont, "\cgINTEGRITY FAILURE",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
-			}
-			else if (suitcore.overheated && ((suitcore.batteries[0] + suitcore.batteries[1]) > 0) && !suitcore.shutdownoverride){
+			else if (suitcore.overheated && ((suitcore.batteries[0] + suitcore.batteries[1]) > 0) && !suitcore.shutdownoverride)
 				sb.drawstring(sb.psmallfont, "\cgEMERGENCY SHUTDOWN. OVERHEATED",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
-			}
 			else
-			{
 				sb.drawstring(sb.psmallfont, "\cgNO BATTERY",
 					(0, 0), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
-			}
 		}
 	}
 	
@@ -227,30 +210,20 @@ class HDPowersuitInterface : nullweapon
 		if (damagetype == "melee" || damagetype == "claws"
 			|| source is "babuin" || damagetype == "teeth"
 			|| damagetype == "jointlock")
-		{
 			newdamage = 0;
-		}
 		
 		if (damagetype == "falling")
-		{
 			newdamage = damage / 4;
-		}
 		
 		if (damagetype == "hot")
-		{
 			newdamage = damage / 2;
-		}
 		
 		if (damagetype == "electrical")
-		{
 			newdamage = damage / 3;
 			suitcore.suitheat += damage * 24;
-		}
 		
 		if (damagetype == "piercing" && !(inflictor == suitcore))
-		{
 			newdamage = 0;
-		}
 		
 		super.modifydamage(damage, damagetype, newdamage, passive, inflictor, source, flags);
 	}
@@ -260,21 +233,15 @@ class HDPowersuitInterface : nullweapon
 			TNT1 A 1 
 			{
 				//A_SetHelpText();
-				a_weaponready(WRF_NOFIRE | WRF_NOSECONDARY | WRF_NOSWITCH | WRF_ALLOWZOOM);
+				a_weaponready(WRF_NOFIRE | WRF_NOSECONDARY | WRF_NOSWITCH | WRF_ALLOWZOOM | WRF_ALLOWUSER3);
 				
 				if (player.cmd.buttons & BT_ZOOM && invoker.zoomamount < 3.0)
-				{
 					invoker.zoomamount += 0.2;
-				}
 				else if (!(player.cmd.buttons & BT_ZOOM) && invoker.zoomamount > 0.0)
-				{
 					invoker.zoomamount -= 0.2;
-				}
 				
 				if (invoker.zoomamount < 0.0)
-				{
 					invoker.zoomamount = 0.0;
-				}
 				
 				a_zoomfactor(1.0 + invoker.zoomamount, ZOOM_INSTANT);
 				
@@ -286,41 +253,48 @@ class HDPowersuitInterface : nullweapon
 				}
 				if (invoker.suitcore.checkusable())
 				{
-					if (player.cmd.buttons & BT_USER2)
+						if (!(player.cmd.buttons & BT_USER2) && (player.cmd.buttons & BT_USER3) && (player.cmd.buttons & BT_ATTACK) && invoker.suitcore.torso.leftshoulder)
+							invoker.suitcore.torso.leftshoulder.isfiring = true;
+						else
+							invoker.suitcore.torso.leftshoulder.isfiring = false;
+						
+						if (!(player.cmd.buttons & BT_USER2) && (player.cmd.buttons & BT_USER3) && (player.cmd.buttons & BT_ALTATTACK) && invoker.suitcore.torso.rightshoulder)
+							invoker.suitcore.torso.rightshoulder.isfiring = true;
+						else
+							invoker.suitcore.torso.rightshoulder.isfiring = false;
+					if ((player.cmd.buttons & BT_USER2))
+					{
+						if (invoker.suitcore.justpressed(BT_RELOAD) && invoker.suitcore.torso.leftshoulder)
+							invoker.suitcore.torso.leftshoulder.changefiremode();
+						
+						if (invoker.suitcore.justpressed(BT_USER4) && invoker.suitcore.torso.rightshoulder)
+							invoker.suitcore.torso.rightshoulder.changefiremode();
+					}
+					
+					if (!(player.cmd.buttons & BT_USER3) && (player.cmd.buttons & BT_USER2))
 					{
 						if (invoker.suitcore.justpressed(BT_ATTACK) && invoker.suitcore.torso.leftarm)
-						{
 							invoker.suitcore.torso.leftarm.changefiremode();
-						}
 						
 						if (invoker.suitcore.justpressed(BT_ALTATTACK) && invoker.suitcore.torso.rightarm)
-						{
 							invoker.suitcore.torso.rightarm.changefiremode();
-						}
+						
 						if (invoker.suitcore.justpressed(BT_ATTACK) && invoker.suitcore.overheated && !invoker.suitcore.shutdownoverride){
 							invoker.suitcore.shutdownoverride=true;
 							invoker.suitcore.a_startsound("mech/powerup", 0, CHANF_OVERLAP);
 						}
 					}
-					else
+					else if (!(player.cmd.buttons & BT_USER3))
 					{
 						if (player.cmd.buttons & BT_ATTACK && invoker.suitcore.torso.leftarm)
-						{
 							invoker.suitcore.torso.leftarm.isfiring = true;
-						}
 						else
-						{
 							invoker.suitcore.torso.leftarm.isfiring = false;
-						}
 						
 						if (player.cmd.buttons & BT_ALTATTACK && invoker.suitcore.torso.rightarm)
-						{
 							invoker.suitcore.torso.rightarm.isfiring = true;
-						}
 						else
-						{
 							invoker.suitcore.torso.rightarm.isfiring = false;
-						}
 					}
 				}
 			}

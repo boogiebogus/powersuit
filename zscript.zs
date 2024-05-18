@@ -7,6 +7,7 @@ version "4.0"
 
 #include "zscript/powersuit/suitcore.zs" //movement, interaction
 #include "zscript/powersuit/suitweapons.zs" //weapon base actor, #includes other weapons
+#include "zscript/powersuit/suitattachments.zs" //shoulder attachment base actor, #includes other attachments
 #include "zscript/powersuit/suitarmor.zs" //special armor class for powersuit
 #include "zscript/powersuit/controller.zs" //interface for control; damage overriding
 #include "zscript/powersuit/maintenance.zs" //suit maintenance interface

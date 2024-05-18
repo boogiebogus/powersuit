@@ -94,16 +94,8 @@ class HDPowersuitRocketArm : HDPowersuitArm
 				}
 					firedrocket.angle = angle;
 					firedrocket.pitch = pitch;
-					if(suitcore.driver)
-					{
-						firedrocket.target = suitcore.driver;
-						firedrocket.master = suitcore.driver;
-					}
-					else
-					{
 						firedrocket.target = self;
 						firedrocket.master = self;
-					}
 					firedrocket.primed = false;
 					if(firerockets)firedrocket.isrocket = true;
 				

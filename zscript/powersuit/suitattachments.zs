@@ -1,21 +1,40 @@
-#include "zscript/weapons/blankarm.zs"
-#include "zscript/weapons/leonidaslmg.zs"
-#include "zscript/weapons/calinicusagl.zs"
-#include "zscript/weapons/jackripper.zs"
-#include "zscript/weapons/zmg33.zs"
-#include "zscript/weapons/athena.zs"
+#include "zscript/attachments/blankshoulder.zs"
+#include "zscript/attachments/heatsink.zs"
+#include "zscript/attachments/gl67grenadelauncher.zs"
+#include "zscript/attachments/rainmodule.zs"
 
-//weapons that use loose ammo only support a magazine size of 1
-//increase capacity by increasing maxmags
-//though, you could use something different if you wanted, of course...
-
-class HDPowersuitArm : hdactor
+class HDPowersuitShoulderAimPoint : actor
 {
-	hdpowersuitaimpoint armpoint;
+	bool isarm, isleft;
+	//accuracy is owner player
+	
+	default
+	{
+		+nointeraction
+	}
+	
+	states
+	{
+		spawn:
+			TNT1 A -1;
+			stop;
+	}
+}
+
+class HDPowersuitShoulder : hdactor
+{
+	int mogshoulderflags;
+
+	flagdef istool:mogshoulderflags,0;
+	flagdef isexplosive:mogshoulderflags,1;
+	flagdef isnotdetachable:mogshoulderflags,2;
+	hdpowersuitshoulderaimpoint shoulderpoint;
 	bool isfiring;
 	hdpowersuit suitcore;
 	array<int> mags;
 	int maxmags, magsize;
+	string undetachablemessage;
+	property undetachablemessage : undetachablemessage;
 	property maxmags : maxmags; //doesn't include the loaded mag
 	property magsize : magsize;
 	string magtype, ammotype, altammotype; //magtype covers ejected mags only
@@ -32,11 +51,20 @@ class HDPowersuitArm : hdactor
 	
 	default
 	{
-		+nointeraction
+		-solid
+		+shootable
+		+noblood
+		health 2000;
 		species "hdpowersuit";
-		hdpowersuitarm.magtype "";
-		hdpowersuitarm.altammotype "";
+		hdpowersuitshoulder.magtype "";
+		hdpowersuitshoulder.undetachablemessage "bruh";
+		hdpowersuitshoulder.altammotype "";
 		obituary "%o fell for war crimes."; //gross hack
+	}
+	
+	virtual void A_Kaboom(bool forceexplosion = false)
+	{
+		if(!forceexplosion && !bIsExplosive)return;
 	}
 	
 	override string getobituary(actor victim,actor inflictor,name mod,bool playerattack){
@@ -178,7 +206,7 @@ class HDPowersuitArm : hdactor
 		return reloadtime;
 	}
 	
-	virtual void spawndroppedarm(out array<int> weaponstatus)
+	virtual void spawndroppedshoulder(out array<int> weaponstatus)
 	{
 		/*standard weaponstatus ammo storage:
 		[0] is the amount of primary mags
@@ -208,7 +236,7 @@ class HDPowersuitArm : hdactor
 		if (droppeditemname != "")
 		{
 			//this happens in suiteditor now
-			//hdpowersuitarmpickup droppedarm = hdpowersuitarmpickup(spawn(droppeditemname, pos));
+			//hdpowersuitshoulderpickup droppedarm = hdpowersuitshoulderpickup(spawn(droppeditemname, pos));
 			
 			class<actor> magtype = ammotype;
 			bool ismagammo = (magtype is "hdmagammo");
@@ -236,7 +264,7 @@ class HDPowersuitArm : hdactor
 		}
 	}
 	
-	virtual void handlemountammo(hdpowersuitarmpickup armitem, playerpawn owner, 
+	virtual void handlemountammo(hdpowersuitshoulderpickup attachmentitem, playerpawn owner, 
 		bool takeitem = true, bool allowspare = true, string extra = "")
 	{
 		let spares = spareweapons(owner.findinventory("spareweapons"));
@@ -295,19 +323,19 @@ class HDPowersuitArm : hdactor
 		}
 		else
 		{
-			int amountmags = armitem.weaponstatus[0];
-			currentmag = armitem.weaponstatus[2];
+			int amountmags = attachmentitem.weaponstatus[0];
+			currentmag = attachmentitem.weaponstatus[2];
 			
 			if (ismagammo)
 			{
 				for (int i = 0; i < amountmags; i++)
 				{
-					loadmagazine(armitem.weaponstatus[3 + i], false);
+					loadmagazine(attachmentitem.weaponstatus[3 + i], false);
 				}
 			}
 			else
 			{
-				for (int i = 0; i < armitem.weaponstatus[3]; i++)
+				for (int i = 0; i < attachmentitem.weaponstatus[3]; i++)
 				{
 					loadmagazine(1, false);
 				}
@@ -315,7 +343,7 @@ class HDPowersuitArm : hdactor
 			
 			if (takeitem)
 			{
-				owner.takeinventory(armitem.getclassname(), 1);
+				owner.takeinventory(attachmentitem.getclassname(), 1);
 			}
 		}
 	}
@@ -324,54 +352,55 @@ class HDPowersuitArm : hdactor
 	{
 		//too lazy to do this the "right" way
 		int reserveshots = 0;
+		if(bIsTool)return;
 		
 		if (isleft)
 		{
 			if (currentmag > 0)
 			{
-				sb.drawrect(-48, -12, float(currentmag / float(magsize)) * -48, -4);
+				sb.drawrect(-48, -32, float(currentmag / float(magsize)) * -48, -4);
 			}
 			
 			for (int i = 0; i < mags.size(); i++)
 			{
-				sb.drawrect(-48 + (i * -3), -18, -2, -4);
+				sb.drawrect(-48 + (i * -3), -38, -2, -4);
 				
 				reserveshots += mags[i];
 			}
 		
 			sb.drawstring(sb.pnewsmallfont, string.format("%i", max(currentmag, 0)),
-				(-50, -12), sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_RIGHT, font.CR_WHITE, scale: (0.5, 0.5));
+				(-50, -32), sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_RIGHT, font.CR_WHITE, scale: (0.5, 0.5));
 			
 			sb.drawstring(sb.pnewsmallfont, string.format("%i", reserveshots),
-				(-54 - (string.format("%i", currentmag).length() * 4), -12), 
+				(-54 - (string.format("%i", currentmag).length() * 4), -32), 
 				sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_RIGHT, font.CR_RED, scale: (0.5, 0.5));
 				
 			sb.drawstring(sb.pnewsmallfont, firemodestring,
-				(-58 - ((string.format("%i", currentmag).length() + string.format("%i", reserveshots).length()) * 4), -12), 
+				(-58 - ((string.format("%i", currentmag).length() + string.format("%i", reserveshots).length()) * 4), -32), 
 				sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_RIGHT, font.CR_GRAY, scale: (0.5, 0.5));
 		}
 		else
 		{
 			if (currentmag > 0)
 			{
-				sb.drawrect(48, -12, float(currentmag / float(magsize)) * 48, -4);
+				sb.drawrect(48, -32, float(currentmag / float(magsize)) * 48, -4);
 			}
 				
 			for (int i = 0; i < mags.size(); i++)
 			{
-				sb.drawrect(48 + (i * 3), -18, 2, -4);
+				sb.drawrect(48 + (i * 3), -38, 2, -4);
 				reserveshots += mags[i];
 			}
 			
 			sb.drawstring(sb.pnewsmallfont, string.format("%i", max(currentmag, 0)),
-				(48, -12), sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_LEFT, font.CR_WHITE, scale: (0.5, 0.5));
+				(48, -32), sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_LEFT, font.CR_WHITE, scale: (0.5, 0.5));
 			
 			sb.drawstring(sb.pnewsmallfont, string.format("%i", reserveshots),
-				(52 + (string.format("%i", currentmag).length() * 4), -12), 
+				(52 + (string.format("%i", currentmag).length() * 4), -32), 
 				sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_LEFT, font.CR_RED, scale: (0.5, 0.5));
 				
 			sb.drawstring(sb.pnewsmallfont, firemodestring,
-				(56 + ((string.format("%i", currentmag).length() + string.format("%i", reserveshots).length()) * 4), -12), 
+				(56 + ((string.format("%i", currentmag).length() + string.format("%i", reserveshots).length()) * 4), -32), 
 				sb.DI_SCREEN_CENTER_BOTTOM | sb.DI_TEXT_ALIGN_LEFT, font.CR_GRAY, scale: (0.5, 0.5));
 		}
 	}
@@ -381,6 +410,11 @@ class HDPowersuitArm : hdactor
 		if (!weaponowner)
 		{
 			return "";
+		}
+		
+		if (bIsTool)
+		{
+			return  "\cjAttachment: \cd"..gettag().."\n\n\cjThis is a \cdtool attachment\cj.\nNo need to do anything here.";
 		}
 		
 		class<actor> magtype = ammotype;
@@ -414,24 +448,23 @@ class HDPowersuitArm : hdactor
 		}
 		
 		string magstring = getdefaultbytype(magtype).gettag();
-		
-		statusmessage = "\cjWeapon: \cd"..gettag()..(ismagazine ? ( //if it's a mag
+		statusmessage = "\cjAttachment: \cd"..gettag()..(ismagazine ? ( //if it's a mag
 			"\n\cjLoaded magazines: \cd"..mags.size() + ((realcurrentmag > 0) ? 1 : 0).."/"..(maxmags + 1)..
 			"\n\cjCurrent magazine: \cd"..((realcurrentmag > 0) ? (realcurrentmag.." rounds") : "\cgnone")) : "").. //end of if it's a mag
 			"\n\cjTotal rounds: \cd"..((totalrounds > 0) ? totalrounds.."/"..(ismagazine ? ((maxmags + 1) * magsize) : (maxmags + 1)).." rounds" : "\cgnone")..
 			"\n\cf"..magstring..((magstring.mid(magstring.length() - 1, 1) == 's') ? " " : "s ")..
 			"\cjin inventory: \cd";
 				
-		if (weaponowner.findinventory(ammotype))
+		if (weaponowner.findinventory(ammotype)&&!bIsTool)
 		{
 			statusmessage = statusmessage..weaponowner.findinventory(ammotype).amount;
 		}
-		else
+		else if(!bIsTool)
 		{
 			statusmessage = statusmessage.."\cgnone";
 		}
 		
-		if(altammotype != "")
+		if((altammotype != "")&&!bIsTool)
 		{
 			class<actor> altmagtype = altammotype;
 			string altmagstring = getdefaultbytype(altmagtype).gettag();
@@ -474,13 +507,14 @@ class HDPowersuitArm : hdactor
 	{				
 		if (suitcore)
 		{
-			warp(suitcore, 12, (isleft ? -24 : 24), suitcore.haslegs ? 28 : 8, angle,  
+			warp(suitcore, 6, (isleft ? -16 : 16), suitcore.haslegs ? 48 : 28, angle,  
 					WARPF_INTERPOLATE | WARPF_NOCHECKPOSITION | WARPF_ABSOLUTEANGLE);			
-			angle = suitcore.torso.angle;
+			vel = (0,0,0);
 			master = suitcore.master;
 			friendplayer = suitcore.friendplayer;
+			angle = suitcore.torso.angle;
 			
-			if (armpoint && suitcore.driver)
+			if (shoulderpoint && suitcore.driver)
 			{			
 				if (suitcore.checkusable())
 				{		
@@ -511,12 +545,12 @@ class HDPowersuitArm : hdactor
 					
 					flinetracedata tracedata;
 					linetrace(angle, 65535, pitch, TRF_THRUSPECIES, 8, 0, 0, tracedata);
-					armpoint.setorigin(tracedata.hitlocation, true);
-					armpoint.isarm = true;
+					shoulderpoint.setorigin(tracedata.hitlocation, true);
+					shoulderpoint.isarm = true;
 				}
 				else
 				{
-					armpoint.isarm = false; //turn off if there's no battery
+					shoulderpoint.isarm = false; //turn off if there's no battery
 				}
 			}
 		}
@@ -526,19 +560,51 @@ class HDPowersuitArm : hdactor
 	
 	override void ondestroy()
 	{
-		if (armpoint)
+		if (shoulderpoint)
 		{
-			armpoint.destroy();
+			shoulderpoint.destroy();
 		}
 		
 		super.ondestroy();
 	}
+	states
+	{
+		death:
+			TNT1 A 1{
+				A_Kaboom();
+				hdpowersuitshoulder blankshoulder = hdpowersuitshoulder(spawn("hdpowersuitblankshoulder", pos));
+				blankshoulder.isleft = isleft;
+				blankshoulder.suitcore = suitcore;
+				
+				if (isleft)
+				{
+					suitcore.torso.leftshoulder = blankshoulder;
+				}
+				else
+				{
+					suitcore.torso.rightshoulder = blankshoulder;
+				}
+				
+				blankshoulder.a_startsound("misc/glassbreak", CHAN_WEAPON);
+				for(int i=0;i<random(75,100);i++){
+					A_SpawnItemEx("HugeWallChunk",
+						frandom((-radius/2),(radius/2)),frandom((-radius/2),(radius/2)),frandom(0,(height/4)),
+						frandom(-5,5),frandom(-5,5),frandom(-5,5),frandom(0,359),
+						SXF_SETMASTER|SXF_TRANSFERPOINTERS|SXF_ABSOLUTEPOSITION
+					);
+				}
+			}
+		stop;
+	}
 }
 
-class HDPowersuitArmPickup : HDWeapon
+class HDPowersuitShoulderPickup : HDWeapon
 {	
-	string armtype;
-	property armtype : armtype;
+	string shouldertype;
+	property shouldertype : shouldertype;
+	int mogshoulderflags;
+
+	flagdef istool:mogshoulderflags,0;
 	
 	string statusmessage, actionmessage;
 	int actionprogress, actiontime;
@@ -574,7 +640,7 @@ class HDPowersuitArmPickup : HDWeapon
 	{
 		sb.drawimage(texman.getname(icon), (0, 0), sb.DI_SCREEN_CENTER | sb.DI_ITEM_CENTER, scale: (2.0, 2.0));
 		
-		sb.drawstring(sb.psmallfont, "\cc=== \cqWeapon Manager \cc===\n",
+		sb.drawstring(sb.psmallfont, "\cc=== \cvAttachment Manager \cc===\n",
 			(0, -96), sb.DI_SCREEN_CENTER | sb.DI_TEXT_ALIGN_CENTER);
 			
 		sb.drawstring(sb.psmallfont, statusmessage,
@@ -598,12 +664,15 @@ class HDPowersuitArmPickup : HDWeapon
 	
 	override string gethelptext()
 	{
-		class<actor> currentarm = armtype;
+		class<actor> currentshoulder = shouldertype;
+		
+		if(bIsTool)
+		return gettag().."\n\n\cjThis is a tool attachment.\n No need to do anything here.";
 		
 		return WEPHELP_RELOAD.."  Reload weapon\n"..
-			(hdpowersuitarm(getdefaultbytype(currentarm)).altammotype != "" ? WEPHELP_ALTRELOAD.."  Alt. reload weapon\n" : "")..
+			(hdpowersuitshoulder(getdefaultbytype(currentshoulder)).altammotype != "" ? WEPHELP_ALTRELOAD.."  Alt. reload weapon\n" : "")..
 			WEPHELP_UNLOAD.."  Unload weapon\n"..
-			(hdpowersuitarm(getdefaultbytype(currentarm)).altammotype != "" ? WEPHELP_ALTRELOAD.." + "..WEPHELP_UNLOAD.."  Alt. unload weapon\n" : "");
+			(hdpowersuitshoulder(getdefaultbytype(currentshoulder)).altammotype != "" ? WEPHELP_ALTRELOAD.." + "..WEPHELP_UNLOAD.."  Alt. unload weapon\n" : "");
 	}
 	
 	bool justpressed(int which)
@@ -624,19 +693,19 @@ class HDPowersuitArmPickup : HDWeapon
 	
 	override void initializewepstats(bool idfa)
 	{
-		hdpowersuitarm currentarm = hdpowersuitarm(spawn(armtype, pos));
-		currentarm.fillmags();
+		hdpowersuitshoulder currentshoulder = hdpowersuitshoulder(spawn(shouldertype, pos));
+		currentshoulder.fillmags();
 		
 		array<int> weaponstatusb;
 		weaponstatusb.resize(HDWEP_STATUSSLOTS);
-		currentarm.spawndroppedarm(weaponstatusb);
+		currentshoulder.spawndroppedshoulder(weaponstatusb);
 		
 		for (int i = 0; i < HDWEP_STATUSSLOTS; i++)
 		{
 			weaponstatus[i] = weaponstatusb[i];
 		}
 		
-		currentarm.destroy();
+		currentshoulder.destroy();
 	}
 	
 	states
@@ -650,10 +719,10 @@ class HDPowersuitArmPickup : HDWeapon
 				//STATUS MESSAGE
 				//================================
 				
-				hdpowersuitarm currentarm = hdpowersuitarm(spawn(invoker.armtype, pos));
-				currentarm.handlemountammo(invoker, playerpawn(self), false, false);
+				hdpowersuitshoulder currentshoulder = hdpowersuitshoulder(spawn(invoker.shouldertype, pos));
+				currentshoulder.handlemountammo(invoker, playerpawn(self), false, false);
 					
-				class<actor> magtype = currentarm.ammotype;
+				class<actor> magtype = currentshoulder.ammotype;
 				bool ismagazine = (magtype is "hdmagammo");
 					
 				if (player.cmd.buttons & BT_USE)
@@ -663,23 +732,23 @@ class HDPowersuitArmPickup : HDWeapon
 				}
 				else
 				{
-					invoker.statusmessage = currentarm.getstatustext(playerpawn(self));
+					invoker.statusmessage = currentshoulder.getstatustext(playerpawn(self));
 				}
 				
 				//================================
 				//INTERACTION HANDLING
 				//================================
 				
-				if (player.cmd.buttons & BT_RELOAD || 
-					(player.cmd.buttons & BT_USER1 && !(player.cmd.buttons & BT_USER4)))
+				if (!invoker.bIsTool&&(player.cmd.buttons & BT_RELOAD || 
+					(player.cmd.buttons & BT_USER1 && !(player.cmd.buttons & BT_USER4))))
 				{		
 					bool usealtammo = false;
 					
-					if (player.cmd.buttons & BT_USER1 && currentarm.altammotype != "")
+					if (player.cmd.buttons & BT_USER1 && currentshoulder.altammotype != "")
 					{
 						usealtammo = true;
 						
-						class<actor> altmagtype = currentarm.altammotype;
+						class<actor> altmagtype = currentshoulder.altammotype;
 						ismagazine = (altmagtype is "hdmagammo");
 					}
 					
@@ -688,32 +757,32 @@ class HDPowersuitArmPickup : HDWeapon
 					
 					if (ismagazine)
 					{
-						magammo = hdmagammo(findinventory((usealtammo ? currentarm.altammotype : currentarm.ammotype)));
+						magammo = hdmagammo(findinventory((usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype)));
 					}
 					else
 					{
-						nonmagammo = hdammo(findinventory((usealtammo ? currentarm.altammotype : currentarm.ammotype)));
+						nonmagammo = hdammo(findinventory((usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype)));
 					}
 					
-					if (currentarm.checkload(usealtammo) && (magammo || nonmagammo))
+					if (currentshoulder.checkload(usealtammo) && (magammo || nonmagammo))
 					{
-						invoker.actiontime = currentarm.getreloadtime(usealtammo, false);
+						invoker.actiontime = currentshoulder.getreloadtime(usealtammo, false);
 						invoker.actionmessage = (usealtammo ? "Alt. " : "").."Reloading";
 						
 						if (invoker.actionprogress >= invoker.actiontime)
 						{
 							if (ismagazine)
 							{
-								currentarm.loadmagazine(magammo.takemag(true), usealtammo);
+								currentshoulder.loadmagazine(magammo.takemag(true), usealtammo);
 							}
 							else
 							{
-								currentarm.loadmagazine(1, usealtammo);
+								currentshoulder.loadmagazine(1, usealtammo);
 								
 								takeinventory(nonmagammo.getclassname(), 1);
 							}
 							
-							a_startsound(currentarm.getloadsound(false, usealtammo), CHAN_WEAPON);
+							a_startsound(currentshoulder.getloadsound(false, usealtammo), CHAN_WEAPON);
 						
 							invoker.actionmessage = "";
 							invoker.actionprogress = 0;
@@ -729,7 +798,7 @@ class HDPowersuitArmPickup : HDWeapon
 						if (invoker.justpressed(BT_RELOAD) || 
 							(invoker.justpressed(BT_USER1) && !invoker.justpressed(BT_USER4)))
 						{
-							if (!currentarm.checkload(usealtammo))
+							if (!currentshoulder.checkload(usealtammo))
 							{
 								A_WeaponMessage("There's no room for any more "..
 									(usealtammo ? "alt. " : "").."ammo.",70);
@@ -750,37 +819,37 @@ class HDPowersuitArmPickup : HDWeapon
 						invoker.actiontime = -1;
 					}
 				}
-				else if (player.cmd.buttons & BT_USER4)
+				else if (!invoker.bIsTool&&(player.cmd.buttons & BT_USER4))
 				{
 					bool usealtammo = false;
 					
-					if (player.cmd.buttons & BT_USER1 && currentarm.altammotype != "")
+					if (player.cmd.buttons & BT_USER1 && currentshoulder.altammotype != "")
 					{
 						usealtammo = true;
 						
-						class<actor> altmagtype = currentarm.altammotype;
+						class<actor> altmagtype = currentshoulder.altammotype;
 						ismagazine = (altmagtype is "hdmagammo");
 					}
 					
-					if (currentarm.checkunload(usealtammo))
+					if (currentshoulder.checkunload(usealtammo))
 					{
-						invoker.actiontime = currentarm.getreloadtime(usealtammo, true);
+						invoker.actiontime = currentshoulder.getreloadtime(usealtammo, true);
 						invoker.actionmessage = (usealtammo ? "Alt. " : "").."Unloading";
 							
 						if (invoker.actionprogress >= invoker.actiontime)
 						{
 							if (ismagazine)
 							{
-								hdmagammo.givemag(self, (usealtammo ? currentarm.altammotype : currentarm.ammotype), 
-									currentarm.handleunload(usealtammo));
+								hdmagammo.givemag(self, (usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype), 
+									currentshoulder.handleunload(usealtammo));
 							}
 							else
 							{
-								giveinventory((usealtammo ? currentarm.altammotype : currentarm.ammotype),
-									currentarm.handleunload(usealtammo));
+								giveinventory((usealtammo ? currentshoulder.altammotype : currentshoulder.ammotype),
+									currentshoulder.handleunload(usealtammo));
 							}
 							
-							a_startsound(currentarm.getloadsound(true, usealtammo), CHAN_WEAPON);
+							a_startsound(currentshoulder.getloadsound(true, usealtammo), CHAN_WEAPON);
 						
 							invoker.actionmessage = "";
 							invoker.actionprogress = 0;
@@ -795,11 +864,11 @@ class HDPowersuitArmPickup : HDWeapon
 					{
 						if (invoker.justpressed(BT_USER4))
 						{
-							if (currentarm is "hdpowersuitblankarm")
+							if (currentshoulder is "hdpowersuitblankshoulder")
 							{
-								A_WeaponMessage("There's no weapon here.",70);
+								A_WeaponMessage("There's no attachment here.",70);
 							}
-							else if (!currentarm.checkunload(usealtammo))
+							else if (!currentshoulder.checkunload(usealtammo))
 							{
 								A_WeaponMessage("There's no "..
 									(usealtammo ? "alt. " : "").."ammo left in this.",70);
@@ -819,14 +888,14 @@ class HDPowersuitArmPickup : HDWeapon
 				
 				array<int> weaponstatus;
 				weaponstatus.resize(HDWEP_STATUSSLOTS);
-				currentarm.spawndroppedarm(weaponstatus);
+				currentshoulder.spawndroppedshoulder(weaponstatus);
 				
 				for (int i = 0; i < HDWEP_STATUSSLOTS; i++)
 				{
 					invoker.weaponstatus[i] = weaponstatus[i];
 				}
 				
-				currentarm.destroy();
+				currentshoulder.destroy();
 			}
 			loop;
 	}
